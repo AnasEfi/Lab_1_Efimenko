@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <fstream>
 using namespace std;
 
 struct Tube
@@ -27,24 +28,29 @@ struct Tube
     Tube x;
     cout << "Введите идентификатор трубы" << "\n";
     cin >> x.ID;
-    /*cout << "Введите Имя трубы" << "\n";
-    cin >> x.Name;*/
-    cout << "Введите Длину трубы"  << "\n";
+    cout << "Введите длину трубы в мм"  << "\n";
     cin >> x.length;
-    cout << "Ведите Диаметр трубы" << "\n";
+    cout << "Ведите диаметр трубы в мм" << "\n";
     cin >> x.diametr;
+    ofstream outf("Text.txt", ios::app);
+    outf << x.Name << "\n" << x.diametr << "\n" << x.length;
     return x;
 }
 
 
 int main()
 {
-setlocale(LC_ALL, "rus");
+    ifstream file;
+    file.open("Lab_1.txt");
+    setlocale(LC_ALL, "rus");
+
 Tube Tube1;
-Tube1.Name = 'ту';
-cout << "Введите Имя трубы"\t<<;
+Tube1.Name ="ту 14-161-173-97";
+cout << "Имя трубы  "<<Tube1.Name<<"\n";
     CreateTube();
-    return 0;
+
+   
+    return 0; 
     
 }
 
