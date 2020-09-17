@@ -8,12 +8,9 @@ using namespace std;
 struct Tube
 {
     string Name;
-    
-    float price;
     double diametr;
     double length;
-    char *ID;
-
+    string ID;
 };
 
 /*struct compressor
@@ -25,30 +22,28 @@ struct Tube
 };*/
 
 
-Tube CreateTube()
+ Tube CreateTube()
    {
-    Tube bigTube;
-    setlocale(LC_ALL, "rus");
-    
-    cout << " Введите Имя трубы" << "\n";
-    cin >> bigTube.Name;
+    Tube x;
+    cout << "Введите идентификатор трубы" << "\n";
+    cin >> x.ID;
+    /*cout << "Введите Имя трубы" << "\n";
+    cin >> x.Name;*/
     cout << "Введите Длину трубы"  << "\n";
-    cin >> bigTube.length;
+    cin >> x.length;
     cout << "Ведите Диаметр трубы" << "\n";
-    cin >> bigTube.diametr;
-    bigTube.ID = " ";
-   
-    return bigTube;
+    cin >> x.diametr;
+    return x;
 }
 
 
 int main()
 {
-
-    Tube bigTube_1;
-    bigTube_1.ID = "1A";
-    CreateTube;
-    cout << bigTube_1;
+setlocale(LC_ALL, "rus");
+Tube Tube1;
+Tube1.Name = 'ту';
+cout << "Введите Имя трубы"\t<<;
+    CreateTube();
     return 0;
     
 }
