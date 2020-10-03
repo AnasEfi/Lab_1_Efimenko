@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <vector>
+#include <string>
 using namespace std;
 
 struct Pipe
@@ -12,25 +13,30 @@ struct Pipe
     string Name;
     double diametr;
     double length;
-   
     bool status;
-  
+    
 };
 
 struct compressorStation
 {
     string Name;
-    double ID
-    double score;
-    int AmountOfDepartment;
-    int InWork;
-
-    float price;
+    string ID;
+    double Amount;
+    double InWork;
+    float efficiency;
 };
+
+
+
 
 bool Fail(double d)
 { 
-    return d > 0 && d < 1220;
+    return d > 0 && d < 12200;
+}
+
+bool FailForKC(double k)
+{
+    return k > 0 ;
 }
 
 void PrintMenu()
@@ -98,7 +104,7 @@ Pipe CreatePipe()
         else break;
     }
 
-    cout << "Труба находится в ремонте? Введите пожалуйста 0=нет или 1=да" << endl;
+    cout << "Труба находится в ремонте? Введите пожалуйста 0=нет или 1=да: ";
 
     while (true)
     {
@@ -122,6 +128,7 @@ Pipe CreatePipe()
     else
         cout << "Труба готова к использованию" << endl;
 
+    cout << "Данные о трубе успешно сохранены" << endl;
     return x;
 
 }
@@ -172,6 +179,91 @@ void SavePipe(const Pipe& x)
     outf << "Имя трубы: "<< x.Name << "\n" << "Диаметр трубы: " << x.diametr << "\n" << "Длина трубы: " << x.length << endl;
     outf << "Труба находится в ремонте:" << x.status;
 }
+
+compressorStation CreatCompr()
+{
+    compressorStation y;
+
+    cout << "Введите название КС: ";
+    while (true)
+    {
+        cin >> y.Name;
+
+        if (cin.fail())
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Недопустимое название, введите ещё раз: ";
+        }
+
+        else break;
+    }
+
+
+    cout << "Введите ID КС: ";
+    while (true)
+    {
+        cin >> y.ID;
+        if (cin.fail())
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Недопустимое значение ID, введите ещё раз: ";
+        }
+        else break;
+    }
+  
+    cout << "Введите колличество цехов: ";
+
+    while (true)
+    {
+        
+        cin >>  y.Amount;
+     
+       
+        if (cin.fail() || !(y.Amount-(int)y.Amount)==0 )
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Недопустимое кол-во цехов, введите ещё раз: ";
+        }
+        else break;
+    }
+
+
+    cout << "Введите колличество цехов в работе: ";
+
+    while (true)
+    {
+        cin >> y.InWork;
+        if (cin.fail() || !FailForKC(y.InWork)|| !(y.InWork - (int)y.InWork) == 0 || y.InWork > y.Amount)
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Недопустимое кол-во (РАБОТАЮЩИХ) цехов, введите ещё раз: ";
+        }
+        else
+            break;
+    }
+
+  
+    cout << "Введите эффективность цеха(0-1): ";
+    while (true)
+    {
+        cin >> y.efficiency;
+        if (cin.fail() || !FailForKC(y.efficiency) || (y.efficiency > 1))
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Недопустимый показатель, введите ещё раз: ";
+        }
+        else break;
+    }
+
+    cout << "Данные о КС сохранены"<< endl;
+
+    return y;
+}
 int main()
 
 {
@@ -216,6 +308,15 @@ int main()
                 
             break;
         }
+        case 6:
+        {
+
+            CreatCompr();
+            cout << '\n';
+            break;
+        }
+
+
         case 0:
         { return 0;
         break;
