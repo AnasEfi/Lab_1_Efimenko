@@ -143,37 +143,53 @@ Pipe LoadPipe()
           fin >> x.status;
 
           fin.close();
+          cout << "Труба загружена" << endl;
       }
       return x;
   };
 
-void PipeEdit(bool& status)
+void PipeEdit(bool& status, const Pipe x)
 {
-    status = !status;
-    cout <<'/n'<< "Вы успешно поменяли статус трубы" << endl;
-
+    if (!(x.Name == ""))
+    {
+        status = !status;
+        cout << "Вы успешно поменяли статус трубы" << endl;
+    }
+    else cout << "Нет данных" << endl;
 }
    
 void PrintPipe(const Pipe x)
 { 
     string SOSTOYANIE;
+
+    if (!(x.Name == ""))
+    {
+        if (x.status != 0)
+            SOSTOYANIE = "Да";
+        else
+            SOSTOYANIE = "Нет";
+
+        cout << "Имя трубы: " << x.Name << endl
+            << "Длина трубы: " << x.length << endl
+            << "Диаметр трубы: " << x.diametr << endl
+            << "Статус трубы (в ремонте): " << SOSTOYANIE << endl;
+    }
+    else cout << "Нет данных" << endl;
+}
+void SavePipe(const Pipe& x)
+{
+
+    bool SOSTOYANIE;
+    Text.close();
+    ofstream fout;
+    ofstream outf("Text.txt", ios::app);
+    outf << "Имя трубы: "<< x.Name << "\n" << "Диаметр трубы: " << x.diametr << "\n" << "Длина трубы: " << x.length << endl;
     if (x.status != 0)
         SOSTOYANIE = "Да";
     else
         SOSTOYANIE = "Нет";
-
-    cout << "Имя трубы: " << x.Name << endl
-        << "Длина трубы: " << x.length << endl
-        << "Диаметр трубы: " << x.diametr << endl
-        << "Статус трубы (в ремонте): " << SOSTOYANIE << endl;
-
-}
-void SavePipe(const Pipe& x)
-{
-    ofstream fout;
-    ofstream outf("Text.txt", ios::app);
-    outf << "Имя трубы: "<< x.Name << "\n" << "Диаметр трубы: " << x.diametr << "\n" << "Длина трубы: " << x.length << endl;
-    outf << "Труба находится в ремонте:" << x.status;
+    outf << "Труба находится в ремонте:" << SOSTOYANIE << endl;
+    cout << "Данные сохранены" << endl;
 }
 
 compressorStation CreatCompr()
@@ -264,39 +280,45 @@ void EditCompressor(compressorStation& y)
 {
     
     double Chex;
-   
-    cout << "Добавить или удалить кол-во цехов в работе(укажите кол-во): ";
-    while (true)
+    if (!(y.Name == ""))
     {
-        cin >> Chex;
-        if (!(Chex - (int)Chex == 0) || cin.fail() || abs(Chex)+y.InWork>y.Amount || abs(Chex)> y.Amount || (Chex) + y.InWork <0)
+        cout << "Добавить или удалить кол-во цехов в работе(укажите кол-во): ";
+        while (true)
         {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимое значение,введите еще раз: ";
+            cin >> Chex;
+            if (!(Chex - (int)Chex == 0) || cin.fail() || abs(Chex) + y.InWork > y.Amount || abs(Chex) > y.Amount || (Chex)+y.InWork < 0)
+            {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "Недопустимое значение,введите еще раз: ";
+            }
+            else break;
         }
-        else break;
+        y.InWork = y.InWork + Chex;
+        cout << "Успешно.Кол-во цехов в работе: " << y.InWork << '\n';
     }
-    y.InWork = y.InWork + Chex;
-    cout << "Успешно.Кол-во цехов в работе: "<< y.InWork<<'\n';
-   
+    else cout << "Нет даннных" << endl;
 
 }
 
 void PrintStation(const compressorStation& y)
 {
-   cout << "Название КС: " << y.Name << endl
-        << "ID КС: " << y.ID << endl
-        << "Количество цехов: " << y.Amount << endl
-        << "Количество цехов в работе: " << y.InWork << endl
-    << "Эффективность цеха(0 - 1): " << y.efficiency << endl;
+    if (!(y.Name ==""))
+    
+        cout << "Название КС: " << y.Name << endl
+            << "ID КС: " << y.ID << endl
+            << "Количество цехов: " << y.Amount << endl
+            << "Количество цехов в работе: " << y.InWork << endl
+            << "Эффективность цеха(0 - 1): " << y.efficiency << endl;
+    
+    else cout << "Нет данных"<<endl;
 }
 void SaveCompressor(const compressorStation& y)
 {
     ofstream fout;
     ofstream outf("Text.txt", ios::app);
     outf << "Имя КС: " << y.Name << "\n" << "ID КС: " << y.ID << "\n" << "Кол-во цехов: " << y.Amount << "\n" << "Кол-во работающих цехов: " << y.InWork << "\n" << "Эффективность: " << y.efficiency << endl;
-
+    cout << "Данные сохранены" << endl;
 }
 
 compressorStation LoadStation()
@@ -396,7 +418,7 @@ int main()
         }
         case 5:
         {
-            PipeEdit(x.status);
+            PipeEdit(x.status,x);
             cout << '\n';
                 
             break;
