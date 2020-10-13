@@ -4,7 +4,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <fstream>
-#include <vector>
 #include <string>
 using namespace std;
 
@@ -25,9 +24,6 @@ struct compressorStation
     double InWork;
     float efficiency;
 };
-
-
-
 
 bool Fail(double d)
 { 
@@ -51,6 +47,7 @@ void PrintMenu()
         << "7.Сохранить данные о КС в файл" << endl
         << "8.Просмотреть данные о КС" << endl
         << "9.Изменить количество работающих цехов" << endl
+        << "10.Загрузить KC из файла" << endl
         << "0.Выход" << endl;
 }
 Pipe CreatePipe()
@@ -304,22 +301,61 @@ void SaveCompressor(const compressorStation& y)
 
 compressorStation LoadStation()
 {
+   
     compressorStation y;
     string s;
-
     ifstream fin;
-    fin.open("Text.txt", ios::in);
+  
+    int n = -1;
+   
+    fin.open("Lab_1.txt", ios::in);
     if (fin.is_open())
     {
-        fin >> y.Name;
-        fin >> y.ID;
-        fin >> y.Amount;
-        fin >> y.InWork;
-        fin >> y.efficiency;
-        fin.close();
-    }
+        do 
+        {
+            getline(fin, s);
+            ++n;
+            if (n == 4)
+            {
+               
+                y.Name = s;
+            }
+        
+            if (n == 5)
+            {
+               
+                y.ID = s;
+            }
+          
+            if (n == 6)
+            {
+
+             
+                y.Amount = stoi(s);
+            }
+      
+            if (n == 7)
+            {
+             
+                y.InWork = stoi(s);
+            }
+          
+                if (n == 8)
+                {
+               
+                    y.efficiency = stof(s);
+                }
+          
+           
+
+            } while (!fin.eof());
+        } fin.close();
+    
+        
+        cout << "КС загружена" << endl;
     return y;
-}
+};
+
 int main()
 
 {
@@ -389,6 +425,12 @@ int main()
         case 9:
         {
             EditCompressor(y);
+            cout << '\n';
+            break;
+        }
+        case 10:
+        {
+            y= LoadStation();
             cout << '\n';
             break;
         }
