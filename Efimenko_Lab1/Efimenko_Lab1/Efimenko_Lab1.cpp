@@ -16,6 +16,21 @@ struct Pipe
     
 };
 
+int getCorrectNumber(int min, int max)
+{
+    int x;
+        do
+    { 
+        cin.clear();
+    cin.ignore(10000, '\n');
+    cout<<"Выберите команду (" << min << "-" << max << "):";
+    cin >> x;
+    }
+    while (cin.fail() || x<min || x>max);
+
+    return x;
+
+}
 struct compressorStation
 {
     string Name;
@@ -158,7 +173,7 @@ void PipeEdit(bool& status, const Pipe x)
     else cout << "Нет данных" << endl;
 }
    
-void PrintPipe(const Pipe x)
+void PrintPipe(const Pipe& x)
 { 
     string SOSTOYANIE;
 
@@ -179,9 +194,10 @@ void PrintPipe(const Pipe x)
 void SavePipe(const Pipe& x)
 {
 
-    bool SOSTOYANIE;
-    Text.close();
+    string SOSTOYANIE;
+   
     ofstream fout;
+   
     ofstream outf("Text.txt", ios::app);
     outf << "Имя трубы: "<< x.Name << "\n" << "Диаметр трубы: " << x.diametr << "\n" << "Длина трубы: " << x.length << endl;
     if (x.status != 0)
@@ -190,6 +206,7 @@ void SavePipe(const Pipe& x)
         SOSTOYANIE = "Нет";
     outf << "Труба находится в ремонте:" << SOSTOYANIE << endl;
     cout << "Данные сохранены" << endl;
+    fout.close();
 }
 
 compressorStation CreatCompr()
@@ -319,6 +336,7 @@ void SaveCompressor(const compressorStation& y)
     ofstream outf("Text.txt", ios::app);
     outf << "Имя КС: " << y.Name << "\n" << "ID КС: " << y.ID << "\n" << "Кол-во цехов: " << y.Amount << "\n" << "Кол-во работающих цехов: " << y.InWork << "\n" << "Эффективность: " << y.efficiency << endl;
     cout << "Данные сохранены" << endl;
+    fout.close();
 }
 
 compressorStation LoadStation()
@@ -352,25 +370,20 @@ compressorStation LoadStation()
             if (n == 6)
             {
 
-             
-                y.Amount = stoi(s);
+              y.Amount = stoi(s);
             }
       
             if (n == 7)
             {
-             
-                y.InWork = stoi(s);
+              y.InWork = stoi(s);
             }
           
                 if (n == 8)
                 {
-               
-                    y.efficiency = stof(s);
+                y.efficiency = stof(s);
                 }
           
-           
-
-            } while (!fin.eof());
+         } while (!fin.eof());
         } fin.close();
     
         
@@ -387,10 +400,9 @@ int main()
     while (1)
     {
         PrintMenu();
-        int i = 0;
-        cin >> i;
+       
 
-        switch (i)
+        switch (getCorrectNumber(0,10))
         {
         case 1:
         {
