@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "Efimenko_Lab1.h"
 
 using namespace std;
 
@@ -15,6 +16,7 @@ struct Pipe
     double diametr;
     double length;
     bool status;
+
 };
 
 struct compressorStation
@@ -25,16 +27,17 @@ struct compressorStation
     double InWork;
     float efficiency;
 };
-int getCorrectNumber(int min, int max)
+
+template <typename Type>
+Type getCorrectNumber(Type min, Type max)
 {
- int x;
-    do
+ Type x;
+ while ((cin>>x).fail() || x<min || x>max)
     {
         cin.clear();
         cin.ignore(10000, '\n');
         cout << "Выберите команду (" << min << "-" << max << "):";
-        cin >> x;
-    } while (cin.fail() || x<min || x>max);
+    }
 return x;
 }
 
@@ -56,16 +59,6 @@ bool IsOK(double d)
     return d > 0;
 }
 
-string condition(const Pipe& Pipe) //переменная для преобразования bool в "Да\Нет" 
-{
-    string SOSTOYANIE;
-    if (Pipe.status != 0)
-        SOSTOYANIE = "Да";
-    else
-        SOSTOYANIE = "Нет";
-    return SOSTOYANIE;
-}
-
 void PrintMenu()
 {
     cout << "1.Создать трубу" << endl
@@ -79,9 +72,10 @@ void PrintMenu()
         << "8.Просмотреть данные о КС" << endl
         << "9.Изменить количество работающих цехов" << endl
         << "10.Загрузить KC из файла" << endl
-        << "0.Выход" << endl;
+        << "0.Выход" << endl
+        << "Выберите действие:";
 }
-Pipe CreatePipe()
+/*Pipe CreatePipe()
 {
     Pipe Pipe;
     cout << "Введите имя трубы: ";
@@ -133,81 +127,136 @@ Pipe CreatePipe()
         }
         else break;
     }
-    if (Pipe.status != 0)
-    cout << "Труба находится в ремонте" << endl;
-    else
-    cout << "Труба готова к использованию" << endl;
+    (Pipe.status != 0) ? (cout << "Труба находится в ремонте" << endl) : (cout << "Труба готова к использованию" << endl);
     cout << "Данные о трубе успешно сохранены" << endl;
     return Pipe;
-}
+}*/
 
-Pipe LoadPipe()
+Pipe LoadPipe(ifstream& fin)
 {
-    ifstream fin;
     Pipe Pipe;
-    fin.open("Text.txt", ios::in);
     if (ExistionOfObjectPipe(Pipe) == true)
     {
-        if (fin.is_open())
-        {
             fin >> Pipe.Name;
             fin >> Pipe.length;
             fin >> Pipe.diametr;
             fin >> Pipe.status;
             fin.close();
             cout << "Труба загружена" << endl;
-        }
-        else cout << "Ошибка при открытия файла" << endl;
-    }
+     }
     else cout << "Трубы не существует" << endl;
-
-      return Pipe;
+    return Pipe;
   };
 
-void PipeEdit(bool& status, const Pipe Pipe)
+void PipeEdit(Pipe& Pipe)
 {
     if (ExistionOfObjectPipe(Pipe) == true)
     {
-        status = !status;
+        Pipe.status = !Pipe.status;
         cout << "Вы успешно поменяли статус трубы" << endl;
     }
     else cout << "Нет данных" << endl;
 }
    
-void PrintPipe(const Pipe& Pipe)
+/*void PrintPipe(const Pipe& Pipe)
 { 
     string SOSTOYANIE; //переменная для преобразования bool в "Да\Нет" 
     if (ExistionOfObjectPipe(Pipe) == true)
     {
-        condition(Pipe);
+        (Pipe.status != 0) ? (SOSTOYANIE = "Да") : (SOSTOYANIE = "Нет"); // преобразованиЕ bool в "Да\Нет"
         cout << "Имя трубы: " << Pipe.Name << endl
             << "Длина трубы: " << Pipe.length << endl
             << "Диаметр трубы: " << Pipe.diametr << endl
             << "Статус трубы (в ремонте): " << SOSTOYANIE << endl;
     }
     else cout << "Нет данных" << endl;
-}
-void SavePipe(const Pipe& Pipe)
+}*/
+istream& operator >> (istream& in, Pipe& Pipe) // оператор ввода 
 {
-    string SOSTOYANIE;
-    ofstream fout;
-    ofstream outf("Text.txt", ios::app );
+    cout << "Введите имя трубы: ";
+    while (true)
+    {
+        in >> Pipe.Name;
+        if (cin.fail()) // проверка на ввод 
+        {
+            cin.clear();  //очистка буфера
+            cin.ignore(10000, '\n');
+            cout << "Недопустимое значение, введите другое: ";
+        }
+        else break;
+    }
+    cout << "Введите пожалуйста длину трубы (км): ";
+    while (true)
+    {
+        in >> Pipe.length;
+        if (cin.fail() || !IsOK(Pipe.length))
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Недопустимая длина трубы, введите еще раз: ";
+        }
+        else break;
+    } cout << "Введите диаметр трубы (мм): ";
+    while (true)
+    {
+        in >> Pipe.diametr;
+        if (cin.fail() || !IsOK(Pipe.diametr))
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Недопустимое значение диаметра, введите еще раз: ";
+        }
+        else break;
+    }
+    cout << "Труба находится в ремонте? Введите 0=нет или 1=да: ";
+    while (true)
+    {
+        in >> Pipe.status;
+        if (cin.fail())
+        {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Недопустимое значение, введите еще раз: ";
+        }
+        else break;
+
+    }
+    if (Pipe.status != 0)
+        cout << "Труба находится в ремонте" << endl;
+    else
+        cout << "Труба готова к использованию" << endl;
+    cout << "Данные о трубе успешно сохранены" << endl;
+    return in;
+}
+ostream& operator << (ostream& out, const Pipe& Pipe)
+{
+    string SOSTOYANIE; //переменная для преобразования bool в "Да\Нет" 
     if (ExistionOfObjectPipe(Pipe) == true)
     {
-    if (outf.is_open())
+        (Pipe.status != 0) ? (SOSTOYANIE = "Да") : (SOSTOYANIE = "Нет"); // преобразованиЕ bool в "Да\Нет"
+        out << "Имя трубы: " << Pipe.Name << endl
+            << "Длина трубы: " << Pipe.length << endl
+            << "Диаметр трубы: " << Pipe.diametr << endl
+            << "Статус трубы (в ремонте): " << SOSTOYANIE << endl;
+    }
+    else cout << "Нет данных" << endl;
+    return out;
+}
+
+void SavePipe(ofstream& fout, const Pipe& Pipe)
+{
+    string SOSTOYANIE;
+    if (ExistionOfObjectPipe(Pipe) == true)
     {
-        outf << Pipe.Name << "\n" << Pipe.diametr << "\n" << Pipe.length << endl;
+        fout << Pipe.Name << "\n" << Pipe.diametr << "\n" << Pipe.length << endl;
         if (Pipe.status != 0)
             SOSTOYANIE = "Да";
         else
             SOSTOYANIE = "Нет";
-        outf << "Труба находится в ремонте:" << SOSTOYANIE << endl;
-        cout << "Данные сохранены" << endl;
-        fout.close();
+        fout << "Труба находится в ремонте:" << SOSTOYANIE << endl;
+        fout << "Данные сохранены" << endl;
     }
-    else cout << "Ошибка в открытии файла";
-    }
-    else cout << "нет данных" << endl;
+    else fout << "нет данных" << endl;
 }
 
 compressorStation CreatCompr()
@@ -366,69 +415,97 @@ compressorStation LoadStation()
         cout << "КС загружена" << endl;
     return Station1;
 };
+
+Pipe& SelectPipe(vector<Pipe> &groupPipe)
+{
+    cout << "Введите номер: ";
+    unsigned int index = getCorrectNumber(1u, groupPipe.size());
+    return groupPipe[index-1];
+}
 int main()
 {
     setlocale(LC_ALL, "rus");
-    Pipe Pipe1;
+    vector <Pipe> group ;
     compressorStation Station1;
     while (1)
     {
         PrintMenu();
         switch (getCorrectNumber(0, 10))
         {
-        case 1:
+        case 1: // создать трубу 
         {
-            Pipe1 = CreatePipe();
+            Pipe Pipe1;
+            cin >> Pipe1;
+            group.push_back(Pipe1);
             break;
         }
-        case 2:
+        case 2: // загрузить трубу
         {
-            Pipe1 = LoadPipe();
-
+            ifstream fin;
+            fin.open("Text.txt", ios::in);
+            if (fin.is_open())
+            {
+                int count;
+                fin >> count;
+                while (count--) 
+                group.push_back(LoadPipe(fin));
+                fin.close();
+            }
+            else cout << "Ошибка при открытия файла" << endl; 
             break;
         }
-        case 3:
+        case 3: // показать трубу 
         {
-            PrintPipe(Pipe1);
+            for (auto& Pipe1:group)
+            cout << Pipe1 << endl ;
             break;
         }
-        case 4:
+        case 4: // сохранить трубу
         {
-            SavePipe(Pipe1);
+            ofstream fout;
+            ofstream outf("Text.txt", ios::app);
+            if (outf.is_open())
+            {
+                fout << group.size() << endl;
+                for (Pipe Pipe1 : group)
+                    SavePipe(fout, Pipe1);
+                    fout.close();
+            }
+            else cout << "Ошибка в открытии файла";
+        
             break;
         }
-        case 5:
+        case 5: // редактировать состояние трубы
         {
-            PipeEdit(Pipe1.status, Pipe1);
+            PipeEdit(SelectPipe(group));
             break;
         }
-        case 6:
+        case 6: // создать станцию
         {
-            
             Station1 = CreatCompr();
             break;
         }
-        case 7:
+        case 7: // сохранить станцию
         {
             SaveCompressor(Station1);
             break;
         }
-        case 8:
+        case 8: // вывести станцию на экран
         {
             PrintStation(Station1);
             break;
         }
-        case 9:
+        case 9: // изменить кол-во работающих цехов
         {
             EditCompressor(Station1);
             break;
         }
-        case 10:
+        case 10: //загрузить станцию из файла
         {
             Station1 = LoadStation();
             break;
         }
-        case 0:
+        case 0: //выход
         {
             return 0;
             break;
