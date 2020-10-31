@@ -6,18 +6,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "Efimenko_Lab1.h"
+#include"CPipe.h"
 
 using namespace std;
-
-struct Pipe
-{
-    string Name;
-    double diametr;
-    double length;
-    bool status;
-
-};
 
 struct compressorStation
 {
@@ -234,7 +225,7 @@ ostream& operator << (ostream& out, const Pipe& Pipe)
     if (ExistionOfObjectPipe(Pipe) == true)
     {
         (Pipe.status != 0) ? (SOSTOYANIE = "Да") : (SOSTOYANIE = "Нет"); // преобразованиЕ bool в "Да\Нет"
-        out << "Имя трубы: " << Pipe.Name << endl
+        out << "Имя трубы: " << Pipe.GetName() << endl
             << "Длина трубы: " << Pipe.length << endl
             << "Диаметр трубы: " << Pipe.diametr << endl
             << "Статус трубы (в ремонте): " << SOSTOYANIE << endl;
@@ -447,8 +438,11 @@ int main()
             {
                 int count;
                 fin >> count;
-                while (count--) 
-                group.push_back(LoadPipe(fin));
+                group.reserve(count);    //опеределим кол-во памяти под студентов( под заданное кол-во объектов)
+                while (count--)
+                {
+                    group.push_back(LoadPipe(fin));
+                }
                 fin.close();
             }
             else cout << "Ошибка при открытия файла" << endl; 
@@ -456,7 +450,7 @@ int main()
         }
         case 3: // показать трубу 
         {
-            for (auto& Pipe1:group)
+            for (const auto& Pipe1:group)
             cout << Pipe1 << endl ;
             break;
         }

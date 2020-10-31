@@ -139,9 +139,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CPipe.cpp" />
     <ClCompile Include="Efimenko_Lab1.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CPipe.h" />
     <ClInclude Include="Efimenko_Lab1.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
