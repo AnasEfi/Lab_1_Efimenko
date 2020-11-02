@@ -8,6 +8,7 @@
 #include <vector>
 #include"CPipe.h"
 #include "utils.h"
+#include "CStation.h"
 
 using namespace std;
 
@@ -18,15 +19,15 @@ using namespace std;
 //    double length;
 //   bool status;
 //};
-
-struct compressorStation
-{
-    string Name;
-    string ID;
-    double Amount;
-    double InWork;
-    float efficiency;
-};
+//
+//struct compressorStation
+//{
+//    string Name;
+//    string ID;
+//    double Amount;
+//    double InWork;
+//    float efficiency;
+//};
 
 //template <typename Type>
 //Type getCorrectNumber(Type min, Type max)
@@ -352,7 +353,7 @@ void EditCompressor(compressorStation& Station1)
             }
             else break;
         }
-        Station1.InWork +=  shop;
+        Station1.InWork += shop;
         cout << "Успешно.Кол-во цехов в работе: " << Station1.InWork << '\n';
     }
     else cout << "Нет даннных" << endl;
@@ -360,7 +361,7 @@ void EditCompressor(compressorStation& Station1)
 
 void PrintStation(const compressorStation& Station1)
 {
-    if (ExistionOfObjectPipeStation(Station1) == true)
+    if (ExistionOfObjectPipeStation(Station1))
     {
         cout << "Название КС: " << Station1.Name << endl
             << "ID КС: " << Station1.ID << endl

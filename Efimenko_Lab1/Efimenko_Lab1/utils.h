@@ -32,7 +32,3 @@ bool ExistionOfObjectPipeStation(const Type& x) //проверка на существование объе
    return p;
 }
 
-//bool IsOK(double d)
-//{
-//    return d > 0;
-//}

@@ -8,6 +8,7 @@ class Pipe
    double diametr;
    double length;
    bool status;
+   int id;
    
 
    friend void PipeEdit(Pipe& Pipe);
@@ -16,7 +17,8 @@ class Pipe
 
 
 public:
-    //Pipe(); //конструктор
+    static int MaxID; //поле общее для всех объектов класса
+    Pipe(); //конструктор
     //~Pipe(); //деструктор
    // std::string GetName() const;
    // void SetName(std::string);
@@ -24,7 +26,5 @@ public:
     
     friend std::ostream& operator << (std::ostream& out, const Pipe& Pipe);
     friend std::istream& operator >> (std::istream& in, Pipe& Pipe);
-
-    
 };
 
