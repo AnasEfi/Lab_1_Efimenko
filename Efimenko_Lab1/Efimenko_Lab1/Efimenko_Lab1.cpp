@@ -7,8 +7,17 @@
 #include <string>
 #include <vector>
 #include"CPipe.h"
+#include "utils.h"
 
 using namespace std;
+
+//struct Pipe
+//{
+//  string Name;
+//  double diametr;
+//    double length;
+//   bool status;
+//};
 
 struct compressorStation
 {
@@ -19,36 +28,36 @@ struct compressorStation
     float efficiency;
 };
 
-template <typename Type>
-Type getCorrectNumber(Type min, Type max)
-{
- Type x;
- while ((cin>>x).fail() || x<min || x>max)
-    {
-        cin.clear();
-        cin.ignore(10000, '\n');
-        cout << "Выберите команду (" << min << "-" << max << "):";
-    }
-return x;
-}
+//template <typename Type>
+//Type getCorrectNumber(Type min, Type max)
+//{
+// Type x;
+// while ((cin>>x).fail() || x<min || x>max)
+//    {
+//        cin.clear();
+//        cin.ignore(10000, '\n');
+//        cout << "Выберите команду (" << min << "-" << max << "):";
+//    }
+//return x;
+//}
 
-bool ExistionOfObjectPipe(const Pipe& Pipe) //проверка на существование объекта (труба)
-{
-    bool p;
-    (!(Pipe.Name == "")) ? (p = 1) : (p = 0);
-    return p;
-}
-bool ExistionOfObjectStation(const compressorStation& Station1) //проверка на cуществование объекта (компрес.станция)
-{
-    bool p1;
-    ((Station1.Name != "")) ? (p1 = 1) : (p1 = 0);
-    return p1;
-}
+//bool ExistionOfObjectPipe(const Pipe& Pipe) //проверка на существование объекта (труба)
+//{
+//    bool p;
+//    (!(Pipe.Name == "")) ? (p = 1) : (p = 0);
+//    return p;
+//}
+//bool ExistionOfObjectStation(const compressorStation& Station1) //проверка на cуществование объекта (компрес.станция)
+//{
+//    bool p1;
+//    ((Station1.Name != "")) ? (p1 = 1) : (p1 = 0);
+//    return p1;
+//}
 
-bool IsOK(double d)
-{ 
-    return d > 0;
-}
+////bool IsOK(double d)
+////{ 
+////    return d > 0;
+////}
 
 void PrintMenu()
 {
@@ -126,7 +135,7 @@ void PrintMenu()
 Pipe LoadPipe(ifstream& fin)
 {
     Pipe Pipe;
-    if (ExistionOfObjectPipe(Pipe) == true)
+    if (ExistionOfObjectPipeStation(Pipe) == true)
     {
             fin >> Pipe.Name;
             fin >> Pipe.length;
@@ -141,7 +150,7 @@ Pipe LoadPipe(ifstream& fin)
 
 void PipeEdit(Pipe& Pipe)
 {
-    if (ExistionOfObjectPipe(Pipe) == true)
+    if (ExistionOfObjectPipeStation(Pipe) == true)
     {
         Pipe.status = !Pipe.status;
         cout << "Вы успешно поменяли статус трубы" << endl;
@@ -162,7 +171,8 @@ void PipeEdit(Pipe& Pipe)
     }
     else cout << "Нет данных" << endl;
 }*/
-istream& operator >> (istream& in, Pipe& Pipe) // оператор ввода 
+
+/*istream& operator >> (istream& in, Pipe& Pipe) // оператор ввода 
 {
     cout << "Введите имя трубы: ";
     while (true)
@@ -222,10 +232,10 @@ istream& operator >> (istream& in, Pipe& Pipe) // оператор ввода
 ostream& operator << (ostream& out, const Pipe& Pipe)
 {
     string SOSTOYANIE; //переменная для преобразования bool в "Да\Нет" 
-    if (ExistionOfObjectPipe(Pipe) == true)
+    if (ExistionOfObjectPipeStation(Pipe) == true)
     {
         (Pipe.status != 0) ? (SOSTOYANIE = "Да") : (SOSTOYANIE = "Нет"); // преобразованиЕ bool в "Да\Нет"
-        out << "Имя трубы: " << Pipe.GetName() << endl
+        out << "Имя трубы: " << Pipe.Name << endl
             << "Длина трубы: " << Pipe.length << endl
             << "Диаметр трубы: " << Pipe.diametr << endl
             << "Статус трубы (в ремонте): " << SOSTOYANIE << endl;
@@ -233,11 +243,12 @@ ostream& operator << (ostream& out, const Pipe& Pipe)
     else cout << "Нет данных" << endl;
     return out;
 }
+*/
 
 void SavePipe(ofstream& fout, const Pipe& Pipe)
 {
     string SOSTOYANIE;
-    if (ExistionOfObjectPipe(Pipe) == true)
+    if (ExistionOfObjectPipeStation(Pipe) == true)
     {
         fout << Pipe.Name << "\n" << Pipe.diametr << "\n" << Pipe.length << endl;
         if (Pipe.status != 0)
@@ -297,7 +308,7 @@ compressorStation CreatCompr()
     while (true)
     {
         cin >> Station1.InWork;
-        if (cin.fail() || !IsOK(Station1.InWork)|| !(Station1.InWork - (int)Station1.InWork) == 0 || Station1.InWork > Station1.Amount)
+        if (cin.fail() || !(Station1.InWork>=0)|| !(Station1.InWork - (int)Station1.InWork) == 0 || Station1.InWork > Station1.Amount)
         {
             cin.clear();
             cin.ignore(10000, '\n');
@@ -311,9 +322,7 @@ compressorStation CreatCompr()
     while (true)
     {
         cin >> Station1.efficiency;
-        if (cin.fail() || !IsOK(
-            
-           Station1.efficiency) || (Station1.efficiency > 1))
+        if (cin.fail() || !(Station1.efficiency>=0) || (Station1.efficiency > 1))
         {
             cin.clear();
             cin.ignore(10000, '\n');
@@ -329,7 +338,7 @@ void EditCompressor(compressorStation& Station1)
 {
    
     double shop;
-    if (ExistionOfObjectStation(Station1) == true)
+    if (ExistionOfObjectPipeStation(Station1) == true)
     {
         cout << "Добавить или удалить кол-во цехов в работе(укажите кол-во): ";
         while (true)
@@ -351,7 +360,7 @@ void EditCompressor(compressorStation& Station1)
 
 void PrintStation(const compressorStation& Station1)
 {
-    if (ExistionOfObjectStation(Station1) == true)
+    if (ExistionOfObjectPipeStation(Station1) == true)
     {
         cout << "Название КС: " << Station1.Name << endl
             << "ID КС: " << Station1.ID << endl
@@ -365,7 +374,7 @@ void SaveCompressor(const compressorStation& Station1)
 {
     ofstream fout;
     ofstream outf("Text.txt", ios::app);
-    if (ExistionOfObjectStation(Station1) == true)
+    if (ExistionOfObjectPipeStation(Station1) == true)
     {
         if (outf.is_open())
         {
@@ -384,7 +393,7 @@ compressorStation LoadStation()
     int p;
     int n = 0;
     fin.open("Text.txt", ios::in);
-    if (fin.is_open()|| (ExistionOfObjectStation(Station1) == true))
+    if (fin.is_open()|| (ExistionOfObjectPipeStation(Station1) == true))
     {
         do
         {
@@ -450,7 +459,7 @@ int main()
         }
         case 3: // показать трубу 
         {
-            for (const auto& Pipe1:group)
+            for (const auto& Pipe1:group) //auto определяет что тип труба
             cout << Pipe1 << endl ;
             break;
         }
