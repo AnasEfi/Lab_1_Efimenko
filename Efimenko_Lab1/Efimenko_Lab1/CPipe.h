@@ -28,5 +28,7 @@ public:
     friend Pipe LoadPipe(std::ifstream& fin);
     friend std::ostream& operator << (std::ostream& out, const Pipe& Pipe);
     friend std::istream& operator >> (std::istream& in, Pipe& Pipe);
+    template<typename Type>
+    friend bool CheckbyID(const Type& x, int parameter);
 };
 

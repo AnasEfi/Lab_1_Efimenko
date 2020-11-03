@@ -78,6 +78,8 @@ void PrintMenu()
         << "12.Найти трубы в ремонте" << endl
         << "13.Найти КС по названию" << endl
         << "14.Найти КС по проценту незад.цехов" << endl
+        << "15.Удалить трубу" << endl
+        << "16.Удалить КС" << endl
         << "0.Выход" << endl
         << "Выберите действие:";
 }
@@ -438,7 +440,11 @@ bool CheckbyName(const Type& x, string parameter)
 {
     return x.Name == parameter;
 }
-
+template<typename Type>
+bool CheckbyID(const Type& x, int parameter)
+{
+ return x.id == parameter;
+}
 bool  Checkbystatus(const Pipe& Pipe1, bool parameter)
 {
     return Pipe1.status == parameter;
@@ -462,7 +468,7 @@ using Filter2 = bool(*)(const compressorStation& Station1, T parameter); //фи�
 bool  Checkbypercent(const compressorStation& Station1, double parameter)
 {
     double percent;
-    percent = floor( (Station1.InWork) / (Station1.Amount) * 100);
+    percent = floor((Station1.InWork) / (Station1.Amount) * 100);
     return percent == parameter;
 }
 template<typename T>
@@ -486,7 +492,7 @@ int main()
     while (1)
     {
         PrintMenu();
-        switch (getCorrectNumber(0, 14))
+        switch (getCorrectNumber(0, 16))
         {
         case 1: // создать трубу 
  {
@@ -623,6 +629,24 @@ int main()
             cin >> percent;
             for (int i : FindbyStationFilter(group2, Checkbypercent, percent))
                 cout << group2[i];
+            break;
+        }
+        case 15: //удалить трубу
+        {
+            int id;
+            cout << "ID трубы: ";
+            cin >> id;
+            for (int i : FindbyPipeFilter(group, CheckbyID, id))
+                group.erase(group.begin() + (id - 1));
+            break;
+        }
+        case 16: //удалить KC
+        {
+            int id;
+            cout << "ID КС: ";
+            cin >> id;
+            for (int i : FindbyStationFilter(group2, CheckbyID, id))
+                group2.erase(group2.begin() + (id - 1));
             break;
         }
         case 0: //выход

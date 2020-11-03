@@ -22,11 +22,7 @@ public:
     friend std::ostream& operator << (std::ostream& out, const compressorStation& Station1);
     friend std::istream& operator >> (std::istream& in, compressorStation& Station1);
     friend bool  Checkbypercent(const compressorStation& Station1, double parameter);
-
-
-
-
-
-
+    template<typename Type>
+    friend bool CheckbyID(const Type& x, int parameter);
 };
 
