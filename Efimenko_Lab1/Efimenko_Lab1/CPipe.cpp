@@ -4,15 +4,12 @@
 
 using namespace std;
 
-int Pipe:: MaxID = 0;
-
+int Pipe :: MaxID = 0;
 
 Pipe::Pipe()
 {
     id = ++MaxID;
-};
-
-
+}
 //Pipe::Pipe(std::string Name)
 //{
 //    Name = new_name;
@@ -28,12 +25,10 @@ Pipe::Pipe()
 //{
 //    Name = new_name;
 //}
-
-
 ostream& operator << (ostream& out, const Pipe& Pipe) // перенос вывода в конструктор класса
 {
     string SOSTOYANIE; //переменная для преобразования bool в "Да\Нет" 
-    if (ExistionOfObjectPipeStation(Pipe) == true)
+    if (ExistionOfObjectPipeStation(Pipe))
     {
         (Pipe.status != 0) ? (SOSTOYANIE = "Да") : (SOSTOYANIE = "Нет"); // преобразованиЕ bool в "Да\Нет"
         out << "MaxID: " << Pipe::MaxID << "\t"<<"ID: "<<Pipe.id<< endl
@@ -45,7 +40,6 @@ ostream& operator << (ostream& out, const Pipe& Pipe) // перенос вывода в констр
     else cout << "Нет данных" << endl;
     return out;
 }
-
 istream& operator >> (istream& in, Pipe& Pipe) // оператор ввода 
 {
     cout << "Введите имя трубы: ";
