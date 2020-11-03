@@ -622,7 +622,7 @@ int main()
             cout << "Процент работающих цехов: ";
             cin >> percent;
             for (int i : FindbyStationFilter(group2, Checkbypercent, percent))
-                cout << group[i];
+                cout << group2[i];
             break;
         }
         case 0: //выход
