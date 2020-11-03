@@ -75,6 +75,9 @@ void PrintMenu()
         << "10.Загрузить KC из файла" << endl
         << "Фильтры" << endl
         << "11.Найти трубу по имени" << endl
+        << "12.Найти трубы в ремонте" << endl
+        << "13.Найти КС по названию" << endl
+        << "14.Найти КС по проценту незад.цехов" << endl
         << "0.Выход" << endl
         << "Выберите действие:";
 }
@@ -430,22 +433,46 @@ compressorStation& SelectStation(vector<compressorStation>& group2Station)
 template<typename T>
 using Filter = bool(*)(const Pipe& Pipe1, T parameter);//вернет bool а получит элемент вектора в соответствии с параметром
 
-bool CheckbyName(const Pipe& Pipe1,string parameter)
+template<typename Type>
+bool CheckbyName(const Type& x, string parameter)
 {
-    return Pipe1.Name == parameter;
+    return x.Name == parameter;
 }
-/*bool CheckbyScore(const Pipe& Pipe1, string parameter)
+
+bool  Checkbystatus(const Pipe& Pipe1, bool parameter)
 {
-     
-}*/
+    return Pipe1.status == parameter;
+}
 template<typename T>
-vector <int> FindPipebyFilter(const vector<Pipe>& group, Filter<T> f, T parameter)
+vector <int> FindbyPipeFilter(const vector<Pipe>& group, Filter<T> f, T parameter)
 {
     vector <int> res;
     int i = 0;
     for (auto& pipe : group)
     {
         if (f(pipe, parameter))
+            res.push_back(i);
+        i++;
+    }
+    return res;
+}
+
+template<typename T>
+using Filter2 = bool(*)(const compressorStation& Station1, T parameter); //фильтр для компрессорных станций
+bool  Checkbypercent(const compressorStation& Station1, double parameter)
+{
+    double percent;
+    percent = floor( (Station1.InWork) / (Station1.Amount) * 100);
+    return percent == parameter;
+}
+template<typename T>
+vector <int> FindbyStationFilter(const vector<compressorStation>& group2, Filter2<T> f, T parameter)
+{
+    vector <int> res;
+    int i = 0;
+    for (auto& Station : group2)
+    {
+        if (f(Station, parameter))
             res.push_back(i);
         i++;
     }
@@ -459,7 +486,7 @@ int main()
     while (1)
     {
         PrintMenu();
-        switch (getCorrectNumber(0, 11))
+        switch (getCorrectNumber(0, 14))
         {
         case 1: // создать трубу 
  {
@@ -567,9 +594,37 @@ int main()
             string name;
             cout << "Имя трубы: ";
             cin >> name;
-            for (int i : FindPipebyFilter(group, CheckbyName, name))
+            for (int i : FindbyPipeFilter(group, CheckbyName, name))
                 cout << group[i];
+            break;
         } 
+        case 12:
+        {
+            bool status1;
+            cout << "В ремонте?(1=да;0=нет): ";
+            cin >> status1;
+            for (int i : FindbyPipeFilter(group,Checkbystatus,status1))
+                cout << group[i];
+            break;
+        }
+        case 13: //найти KC по имени
+        {
+            string name;
+            cout << "Имя KC: ";
+            cin >> name;
+            for (int i : FindbyStationFilter(group2, CheckbyName, name))
+                cout << group[i];
+            break;
+        }
+        case 14: //найти KC % работ. цехов
+        {
+            double percent;
+            cout << "Процент работающих цехов: ";
+            cin >> percent;
+            for (int i : FindbyStationFilter(group2, Checkbypercent, percent))
+                cout << group[i];
+            break;
+        }
         case 0: //выход
         {
             return 0;

@@ -21,11 +21,11 @@ public:
     friend void SaveCompressor(ofstream& fout, const compressorStation Station1);
     friend std::ostream& operator << (std::ostream& out, const compressorStation& Station1);
     friend std::istream& operator >> (std::istream& in, compressorStation& Station1);
-    
-  
+    friend bool  Checkbypercent(const compressorStation& Station1, double parameter);
 
 
-      
+
+
 
 
 };
