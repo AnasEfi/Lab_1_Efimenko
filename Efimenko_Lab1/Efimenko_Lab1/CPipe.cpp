@@ -10,6 +10,7 @@ Pipe::Pipe()
 {
     id = ++MaxID;
 }
+
 //Pipe::Pipe(std::string Name)
 //{
 //    Name = new_name;
@@ -98,7 +99,3 @@ istream& operator >> (istream& in, Pipe& Pipe) // оператор ввода
     return in;
 }
 
-//std::string Pipe::GetName() const
-//{
-//    return std::string();
-//}

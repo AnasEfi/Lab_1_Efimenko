@@ -1,13 +1,13 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <vector>
 #include "utils.h"
 
 class Pipe
 {
    double diametr;
    double length;
-   int id;
    
 public:
     static int MaxID; //поле общее для всех объектов класса
@@ -17,6 +17,7 @@ public:
    // void SetName(std::string);
     std::string Name;
     bool status;
+    int id;
     template <typename Type>
     friend bool ExistionOfObjectPipeStation(const Type& x);
     template<typename T>
@@ -30,5 +31,6 @@ public:
     friend std::istream& operator >> (std::istream& in, Pipe& Pipe);
     template<typename Type>
     friend bool CheckbyID(const Type& x, int parameter);
+    
 };
 

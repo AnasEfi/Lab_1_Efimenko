@@ -32,4 +32,16 @@ bool ExistionOfObjectPipeStation(const Type& x) //проверка на существование объе
    return p;
 }
 
-
+template <typename T>
+bool ErrorCin(const T&)
+{
+    bool p=false;
+    if (cin.fail())
+    {
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << "Недопустимое название, введите ещё раз: ";
+        p = true;
+    }
+    return p;
+}

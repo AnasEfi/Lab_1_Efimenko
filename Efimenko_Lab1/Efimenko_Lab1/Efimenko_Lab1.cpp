@@ -55,11 +55,6 @@ using namespace std;
 //    return p1;
 //}
 
-////bool IsOK(double d)
-////{ 
-////    return d > 0;
-////}
-
 void PrintMenu()
 {
     cout << "1.Создать трубу" << endl
@@ -80,6 +75,7 @@ void PrintMenu()
         << "14.Найти КС по проценту незад.цехов" << endl
         << "15.Удалить трубу" << endl
         << "16.Удалить КС" << endl
+        << "17.Изменить несколько труб" << endl
         << "0.Выход" << endl
         << "Выберите действие:";
 }
@@ -432,6 +428,7 @@ compressorStation& SelectStation(vector<compressorStation>& group2Station)
 }
 
 
+
 template<typename T>
 using Filter = bool(*)(const Pipe& Pipe1, T parameter);//вернет bool а получит элемент вектора в соответствии с параметром
 
@@ -445,6 +442,7 @@ bool CheckbyID(const Type& x, int parameter)
 {
  return x.id == parameter;
 }
+
 bool  Checkbystatus(const Pipe& Pipe1, bool parameter)
 {
     return Pipe1.status == parameter;
@@ -484,15 +482,32 @@ vector <int> FindbyStationFilter(const vector<compressorStation>& group2, Filter
     }
     return res;
 }
+
+void ChangeStatusInGroup(vector<Pipe>& group, vector<int> ID_vector)
+{
+    int index;
+    int i = 0;
+    int max = ID_vector.size();
+    for (auto& Pipe : group)
+    {
+        for (auto const&element  : ID_vector)
+        if (Pipe.id == element)
+        {
+            Pipe.status = !Pipe.status;
+        }
+    }
+}
 int main()
 {
     setlocale(LC_ALL, "rus");
     vector <Pipe> group;
+   
     vector <compressorStation> group2;
+    vector<int>ID_vector;
     while (1)
     {
         PrintMenu();
-        switch (getCorrectNumber(0, 16))
+        switch (getCorrectNumber(0, 17))
         {
         case 1: // создать трубу 
  {
@@ -606,12 +621,22 @@ int main()
         } 
         case 12:
         {
+            bool decision;
             bool status1;
             cout << "В ремонте?(1=да;0=нет): ";
             cin >> status1;
             for (int i : FindbyPipeFilter(group,Checkbystatus,status1))
                 cout << group[i];
-            break;
+            if (status1==true)
+                cout << "хотите ввести эти трубы в эксплуатацию?: " ;
+            cin >> decision;
+            if (cin.fail())
+            {
+                cin.clear();
+                cin.ignore(10000, '\n');
+                cout << "Недопустимое название, введите ещё раз: ";
+            }
+            else break;
         }
         case 13: //найти KC по имени
         {
@@ -647,6 +672,39 @@ int main()
             cin >> id;
             for (int i : FindbyStationFilter(group2, CheckbyID, id))
                 group2.erase(group2.begin() + (id - 1));
+            break;
+        }
+        case 17: //изменить несколько труб
+        {
+            bool desicion;
+            
+            int i = 1;
+            bool finish = 0;
+            int ID = 0;
+            cout << "введите ID труб через enter: ";
+            cin >> ID;
+            ID_vector.push_back(ID);
+            do
+            {
+                cout << "Добавить еще трубу? Да=1/Нет=0" << endl;
+                cin >> desicion;
+                if (!(ErrorCin(desicion)))
+                {
+                    if (desicion)
+                    {
+                        ++i;
+                        
+                        cout << "Введите ID трубы: ";
+                        cin >> ID;
+                        ID_vector.push_back(ID);
+                       
+                    }
+                    else finish = true;
+                } 
+
+            } while (finish == false);
+            ChangeStatusInGroup(group, ID_vector);
+
             break;
         }
         case 0: //выход
