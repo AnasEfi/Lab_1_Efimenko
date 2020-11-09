@@ -139,16 +139,18 @@ void PrintMenu()
 Pipe LoadPipe(ifstream& fin)
 {
     Pipe Pipe;
-    if (ExistionOfObjectPipeStation(Pipe))
+    string str;
+    fin >> str;
+    if (!(str == " "))
     {
-            fin >> Pipe.Name;
-            fin >> Pipe.length;
-            fin >> Pipe.diametr;
-            fin >> Pipe.status;
-            fin.close();
-            cout << "Труба загружена" << endl;
-     }
-    else cout << "Трубы не существует" << endl;
+        fin >> Pipe.Name;
+        fin >> Pipe.length;
+        fin >> Pipe.diametr;
+        fin >> Pipe.status;
+        fin.close();
+        cout << "Труба загружена" << endl;
+    }
+    else cout << "файл пуст" << endl;
     return Pipe;
   };
 
@@ -254,13 +256,13 @@ void SavePipe(ofstream& fout, const Pipe& Pipe)
     string SOSTOYANIE;
     if (ExistionOfObjectPipeStation(Pipe))
     {
-        fout << Pipe.Name << "\n" << Pipe.diametr << "\n" << Pipe.length << endl;
-        if (Pipe.status != 0)
+        fout << Pipe.Name << "\n" << Pipe.diametr << "\n" << Pipe.length << "\n" << Pipe.status<<  endl;
+       /* if (Pipe.status != 0)
             SOSTOYANIE = "Да";
         else
             SOSTOYANIE = "Нет";
-        fout << "Труба находится в ремонте:" << SOSTOYANIE << endl;
-        fout << "Данные сохранены" << endl;
+        cout << "Труба находится в ремонте:" << SOSTOYANIE << endl;*/
+        cout << "Данные сохранены" << endl;
     }
     else fout << "нет данных" << endl;
 }
@@ -518,20 +520,28 @@ int main()
         }
         case 2: // загрузить трубу
         {
-            ifstream fin;
-            fin.open("Text.txt", ios::in);
+            char newfilename[25];
+            char help;
+            string str = ".txt";
+            cout << "Имя файла: ";
+            cin >> newfilename;
+            ifstream fin(newfilename+str, ios::in);
             if (fin.is_open())
             {
-                int count;
+                int count = -1;
                 fin >> count;
-                group.reserve(count);    //опеределим кол-во памяти под студентов(под заданное кол-во объектов)
-                while (count--)
+                if (!(count == -1))
                 {
-                    group.push_back(LoadPipe(fin));
+                    group.reserve(count);    //опеределим кол-во памяти под трубы(под заданное кол-во объектов)
+                    while (count--)
+                    {
+                        group.push_back(LoadPipe(fin));
+                    }
+                    fin.close();
                 }
-                fin.close();
+                else cout << "Файл пуст" << endl;
             }
-            else cout << "Ошибка при открытия файла" << endl; 
+            else cout << "Ошибка при открытия файла" << endl;
             break;
         }
         case 3: // показать трубу 
@@ -542,16 +552,23 @@ int main()
         }
         case 4: // сохранить трубу
         {
-            ofstream fout;
-            ofstream outf("Text.txt", ios::app);
-            if (outf.is_open())
+            char newfilename[25] ;
+            char help;
+            string str = ".txt";
+            cout << "Имя файла: ";
+            cin >> newfilename;
+            if (!(ErrorCin(newfilename)))
             {
-                fout << group.size() << endl;
-                for (Pipe Pipe1 : group)
-                    SavePipe(fout, Pipe1);
-                    fout.close();
-            }
-            else cout << "Ошибка в открытии файла";
+                ofstream outf(newfilename + str, ios::out);
+                if (outf.is_open())
+                {
+                    outf << group.size() << endl;
+                    for (Pipe Pipe1 : group)
+                        SavePipe(outf, Pipe1);
+                    outf.close();
+                }
+                else cout << "Ошибка в открытии файла";
+            } 
             break;
         }
         case 5: // редактировать состояние трубы
