@@ -7,18 +7,19 @@ int compressorStation :: MaxID = 0;
 compressorStation::compressorStation()
 {
     id = ++MaxID;
-}
+    Name = "Unknown";
+    Amount = 0;
+    InWork = 0;
+    efficiency = 0;
+};
+
 ostream& operator << (ostream& out, const compressorStation& Station1) // перенос вывода в конструктор класса
 {
-    if (ExistionOfObjectPipeStation(Station1))
-    {
         out << "MaxID: " << compressorStation::MaxID << "\t" << "ID: " << Station1.id << endl
             << "Название КС: " << Station1.Name << endl
             << "Количество цехов: " << Station1.Amount << endl
             << "Количество цехов в работе: " << Station1.InWork << endl
             << "Эффективность цеха(0 - 1): " << Station1.efficiency << endl;
-    }
-    else out << "Нет данных" << endl;
     return out;
 }
 
@@ -27,7 +28,9 @@ istream& operator >> (istream& in, compressorStation& Station1)
     cout << "Введите название КС: ";
     while (true)
     {
-        in >> Station1.Name;
+        in.clear();
+        in.ignore(10000, '\n');
+        getline(in, Station1.Name); //ввод с пробелами
         if (cin.fail())
         {
             cin.clear();

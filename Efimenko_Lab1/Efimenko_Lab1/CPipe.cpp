@@ -1,56 +1,44 @@
 #include "CPipe.h"
 #include "utils.h"
+#include <string>
+#include<iostream>
 
 
 using namespace std;
-
 int Pipe :: MaxID = 0;
 
 Pipe::Pipe()
 {
     id = ++MaxID;
+    Name = "Unknown";
+    diametr = 0;
+    length = 0;
 }
 
-//Pipe::Pipe(std::string Name)
-//{
-//    Name = new_name;
-//    status = false;
-//    Name = "";
-//}
-//std::string Pipe::GetName() const
-//{
-//    return Name;
-//}
-//
-//void Pipe::SetName(std::string new_name)
-//{
-//    Name = new_name;
-//}
 ostream& operator << (ostream& out, const Pipe& Pipe) // перенос вывода в конструктор класса
 {
     string SOSTOYANIE; //переменная для преобразования bool в "Да\Нет" 
-    if (ExistionOfObjectPipeStation(Pipe))
-    {
         (Pipe.status != 0) ? (SOSTOYANIE = "Да") : (SOSTOYANIE = "Нет"); // преобразованиЕ bool в "Да\Нет"
         out << "MaxID: " << Pipe::MaxID << "\t"<<"ID: "<<Pipe.id<< endl
             << "Имя трубы: " << Pipe.Name << endl
             << "Длина трубы: " << Pipe.length << endl
             << "Диаметр трубы: " << Pipe.diametr << endl
             << "Статус трубы (в ремонте): " << SOSTOYANIE << endl;
-    }
-    else cout << "Нет данных" << endl;
     return out;
 }
 istream& operator >> (istream& in, Pipe& Pipe) // оператор ввода 
 {
-    cout << "Введите имя трубы: ";
     while (true)
     {
-        in >> Pipe.Name;
-        if (cin.fail()) // проверка на ввод 
+        cout << "Введите имя трубы: ";
+        in.clear();
+        in.ignore(10000, '\n');
+        getline(in, Pipe.Name); //ввод с пробелами
+      
+        if (in.fail()) // проверка на ввод 
         {
-            cin.clear();  //очистка буфера
-            cin.ignore(10000, '\n');
+            in.clear();  //очистка буфера
+            in.ignore(10000, '\n');
             cout << "Недопустимое значение, введите другое: ";
         }
         else break;

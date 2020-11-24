@@ -9,51 +9,8 @@
 #include"CPipe.h"
 #include "utils.h"
 #include "CStation.h"
-
+#include <cstdio>
 using namespace std;
-
-//struct Pipe
-//{
-//  string Name;
-//  double diametr;
-//    double length;
-//   bool status;
-//};
-//
-//struct compressorStation
-//{
-//    string Name;
-//    string ID;
-//    double Amount;
-//    double InWork;
-//    float efficiency;
-//};
-
-//template <typename Type>
-//Type getCorrectNumber(Type min, Type max)
-//{
-// Type x;
-// while ((cin>>x).fail() || x<min || x>max)
-//    {
-//        cin.clear();
-//        cin.ignore(10000, '\n');
-//        cout << "Выберите команду (" << min << "-" << max << "):";
-//    }
-//return x;
-//}
-
-//bool ExistionOfObjectPipe(const Pipe& Pipe) //проверка на существование объекта (труба)
-//{
-//    bool p;
-//    (!(Pipe.Name == "")) ? (p = 1) : (p = 0);
-//    return p;
-//}
-//bool ExistionOfObjectStation(const compressorStation& Station1) //проверка на cуществование объекта (компрес.станция)
-//{
-//    bool p1;
-//    ((Station1.Name != "")) ? (p1 = 1) : (p1 = 0);
-//    return p1;
-//}
 
 void PrintMenu()
 {
@@ -62,7 +19,6 @@ void PrintMenu()
         << "3.Просмотреть данные о трубе" << endl
         << "4.Вывести данные о трубе в файл" << endl
         << "5.Изменить статус трубы (в ремонте)" << endl
-
         << "6.Создать КС" << endl
         << "7.Сохранить данные о КС в файл" << endl
         << "8.Просмотреть данные о КС" << endl
@@ -79,279 +35,53 @@ void PrintMenu()
         << "0.Выход" << endl
         << "Выберите действие:";
 }
-/*Pipe CreatePipe()
+
+Pipe LoadPipe(ifstream& fin, int& number)
 {
     Pipe Pipe;
-    cout << "Введите имя трубы: ";
-    while (true)
+    string fi,name, b = to_string(number);
+    bool p,s = false;
+    double d, l;
+    string check = "*" + b;
+    fin.clear();                        //очистка ошибок потока
+    fin.seekg(0,ios::beg);              //поиск позиции от начала файла
+    while (getline(fin, fi) || !p)
     {
-        cin >> Pipe.Name;
-        if (cin.fail()) // проверка на ввод 
+        if (fi == check)
         {
-            cin.clear();  //очистка буфера
-            cin.ignore(10000, '\n');
-            cout << "Недопустимое значение, введите другое: ";
+            getline(fin, name);Pipe.SetName(name);
+            fin >> (l);Pipe.SetLength(l);
+            fin >> (d);Pipe.SetDiametr(d);
+            fin >> (s);Pipe.SetStatus(s);
+            p = true;
         }
-        else break;
-    }
-    cout << "Введите пожалуйста длину трубы (км): ";
-    while (true)
-    {
-        cin >> Pipe.length;
-        if (cin.fail() || !IsOK(Pipe.length))
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимая длина трубы, введите еще раз: ";
-            cin >> Pipe.length;
-        }
-        else break;
-    } cout << "Введите диаметр трубы (мм): ";
-
-    while (true)
-    {
-        cin >> Pipe.diametr;
-        if (cin.fail() || !IsOK(Pipe.diametr))
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимое значение диаметра, введите еще раз: ";
-        }
-        else break;
-    }
-    cout << "Труба находится в ремонте? Введите 0=нет или 1=да: ";
-    while (true)
-    {
-        cin >> Pipe.status;
-        if (cin.fail())
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимое значение, введите еще раз: ";
-        }
-        else break;
-    }
-    (Pipe.status != 0) ? (cout << "Труба находится в ремонте" << endl) : (cout << "Труба готова к использованию" << endl);
-    cout << "Данные о трубе успешно сохранены" << endl;
+    } cout << "Труба загружена" << endl;
     return Pipe;
-}*/
-
-Pipe LoadPipe(ifstream& fin)
-{
-    Pipe Pipe;
-    string str;
-    fin >> str;
-    if (!(str == " "))
-    {
-        fin >> Pipe.Name;
-        fin >> Pipe.length;
-        fin >> Pipe.diametr;
-        fin >> Pipe.status;
-        fin.close();
-        cout << "Труба загружена" << endl;
-    }
-    else cout << "файл пуст" << endl;
-    return Pipe;
-  };
+  }
 
 void PipeEdit(Pipe& Pipe)
 {
-    if (ExistionOfObjectPipeStation(Pipe))
-    {
-        Pipe.status = !Pipe.status;
+        bool status;
+        status = Pipe.GetStatus();
+        Pipe.SetStatus(!status);
         cout << "Вы успешно поменяли статус трубы" << endl;
-    }
-    else cout << "Нет данных" << endl;
 }
-   
-/*void PrintPipe(const Pipe& Pipe)
-{ 
-    string SOSTOYANIE; //переменная для преобразования bool в "Да\Нет" 
-    if (ExistionOfObjectPipe(Pipe) == true)
-    {
-        (Pipe.status != 0) ? (SOSTOYANIE = "Да") : (SOSTOYANIE = "Нет"); // преобразованиЕ bool в "Да\Нет"
-        cout << "Имя трубы: " << Pipe.Name << endl
-            << "Длина трубы: " << Pipe.length << endl
-            << "Диаметр трубы: " << Pipe.diametr << endl
-            << "Статус трубы (в ремонте): " << SOSTOYANIE << endl;
-    }
-    else cout << "Нет данных" << endl;
-}*/
-
-/*istream& operator >> (istream& in, Pipe& Pipe) // оператор ввода 
-{
-    cout << "Введите имя трубы: ";
-    while (true)
-    {
-        in >> Pipe.Name;
-        if (cin.fail()) // проверка на ввод 
-        {
-            cin.clear();  //очистка буфера
-            cin.ignore(10000, '\n');
-            cout << "Недопустимое значение, введите другое: ";
-        }
-        else break;
-    }
-    cout << "Введите пожалуйста длину трубы (км): ";
-    while (true)
-    {
-        in >> Pipe.length;
-        if (cin.fail() || !IsOK(Pipe.length))
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимая длина трубы, введите еще раз: ";
-        }
-        else break;
-    } cout << "Введите диаметр трубы (мм): ";
-    while (true)
-    {
-        in >> Pipe.diametr;
-        if (cin.fail() || !IsOK(Pipe.diametr))
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимое значение диаметра, введите еще раз: ";
-        }
-        else break;
-    }
-    cout << "Труба находится в ремонте? Введите 0=нет или 1=да: ";
-    while (true)
-    {
-        in >> Pipe.status;
-        if (cin.fail())
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимое значение, введите еще раз: ";
-        }
-        else break;
-
-    }
-    if (Pipe.status != 0)
-        cout << "Труба находится в ремонте" << endl;
-    else
-        cout << "Труба готова к использованию" << endl;
-    cout << "Данные о трубе успешно сохранены" << endl;
-    return in;
-}
-ostream& operator << (ostream& out, const Pipe& Pipe)
-{
-    string SOSTOYANIE; //переменная для преобразования bool в "Да\Нет" 
-    if (ExistionOfObjectPipeStation(Pipe) == true)
-    {
-        (Pipe.status != 0) ? (SOSTOYANIE = "Да") : (SOSTOYANIE = "Нет"); // преобразованиЕ bool в "Да\Нет"
-        out << "Имя трубы: " << Pipe.Name << endl
-            << "Длина трубы: " << Pipe.length << endl
-            << "Диаметр трубы: " << Pipe.diametr << endl
-            << "Статус трубы (в ремонте): " << SOSTOYANIE << endl;
-    }
-    else cout << "Нет данных" << endl;
-    return out;
-}
-*/
 
 void SavePipe(ofstream& fout, const Pipe& Pipe)
 {
-    string SOSTOYANIE;
-    if (ExistionOfObjectPipeStation(Pipe))
-    {
-        fout << Pipe.Name << "\n" << Pipe.diametr << "\n" << Pipe.length << "\n" << Pipe.status<<  endl;
-       /* if (Pipe.status != 0)
-            SOSTOYANIE = "Да";
-        else
-            SOSTOYANIE = "Нет";
-        cout << "Труба находится в ремонте:" << SOSTOYANIE << endl;*/
+        fout <<"*"<<Pipe.GetID() << "\n" << Pipe.GetName() << "\n" << Pipe.GetDiametr() << "\n" << Pipe.GetLength() << "\n" << Pipe.GetStatus()<<  endl;
         cout << "Данные сохранены" << endl;
-    }
-    else fout << "нет данных" << endl;
 }
 
-/*
-compressorStation CreatCompr()
-{
-    compressorStation Station1;
-    cout << "Введите название КС: ";
-    while (true)
-    {
-        cin >> Station1.Name;
-        if (cin.fail())
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимое название, введите ещё раз: ";
-        }
-    else break;
-    }
-
-
-    cout << "Введите ID КС: ";
-    while (true)
-    {
-        cin >> Station1.ID;
-        if (cin.fail())
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимое значение ID, введите ещё раз: ";
-        }
-        else break;
-    }
-  
-    cout << "Введите количество цехов: ";
-
-    while (true)
-    {  
-        cin >>  Station1.Amount;
-        if (cin.fail() || !(Station1.Amount-(int)Station1.Amount)==0 )
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимое кол-во цехов, введите ещё раз: ";
-        }
-        else break;
-    }
-    cout << "Введите количество цехов в работе: ";
-    while (true)
-    {
-        cin >> Station1.InWork;
-        if (cin.fail() || !(Station1.InWork>=0)|| !(Station1.InWork - (int)Station1.InWork) == 0 || Station1.InWork > Station1.Amount)
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимое кол-во (РАБОТАЮЩИХ) цехов, введите ещё раз: ";
-        }
-        else break;
-    }
-
-  
-    cout << "Введите эффективность цеха(0-1): ";
-    while (true)
-    {
-        cin >> Station1.efficiency;
-        if (cin.fail() || !(Station1.efficiency>=0) || (Station1.efficiency > 1))
-        {
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cout << "Недопустимый показатель, введите ещё раз: ";
-        }
-        else break;
-    }
-
-    cout << "Данные о КС сохранены"<< endl;
-    return Station1;
-}*/
 void EditCompressor(compressorStation& Station1)
 {
-   
     double shop;
-    if (ExistionOfObjectPipeStation(Station1) == true)
     {
         cout << "Добавить или удалить кол-во цехов в работе(укажите кол-во): ";
         while (true)
         {
             cin >> shop;
-            if (!(shop - (int)shop == 0) || cin.fail() || abs(shop) + Station1.InWork > Station1.Amount || abs(shop) > Station1.Amount || (shop)+Station1.InWork < 0)
+            if (!(shop - (int)shop == 0) || (cin.fail()) || (abs(shop) + Station1.GetInWork() > Station1.GetAmount()) || (abs(shop) > Station1.GetAmount()) || ((shop)+Station1.GetInWork() < 0))
             {
                 cin.clear();
                 cin.ignore(10000, '\n');
@@ -359,67 +89,49 @@ void EditCompressor(compressorStation& Station1)
             }
             else break;
         }
-        Station1.InWork += shop;
-        cout << "Успешно.Кол-во цехов в работе: " << Station1.InWork << '\n';
+        double shops = Station1.GetInWork();
+        shops += shop;
+        Station1.SetInWork(shops);
+        cout << "Успешно.Кол-во цехов в работе: " << Station1.GetInWork()<< '\n';
     }
-    else cout << "Нет даннных" << endl;
 }
-
-/*void PrintStation(const compressorStation& Station1)
-{
-    if (ExistionOfObjectPipeStation(Station1))
-    {
-        cout << "Название КС: " << Station1.Name << endl
-            << "ID КС: " << Station1.ID << endl
-            << "Количество цехов: " << Station1.Amount << endl
-            << "Количество цехов в работе: " << Station1.InWork << endl
-            << "Эффективность цеха(0 - 1): " << Station1.efficiency << endl;
-    }
-    else cout << "Нет данных"<<endl;
-}*/
 
 void SaveCompressor(ofstream& fout, const compressorStation Station1)
 {
-    if (ExistionOfObjectPipeStation(Station1))
-    {
-            fout << Station1.Name << "\n" << Station1.Amount << "\n" << Station1.InWork << "\n" << Station1.efficiency << endl;
+            fout<<"@" <<Station1.GetID()<< Station1.GetNameS() << "\n" << Station1.GetAmount() << "\n" << Station1.GetInWork() << "\n" << Station1.Getefficiency() << endl;
             cout << "Данные сохранены" << endl;
-    }
-    else cout << "Станция не создана" << endl;
 }
 
-
-compressorStation LoadStation(ifstream& fin)
+compressorStation LoadStation(ifstream& fin, int& number)
 {
-    compressorStation Station1;
-    int p;
-    int n = 0;
-    
-    if (ExistionOfObjectPipeStation(Station1))
-    {
-        do
+    compressorStation Station;
+    string fi, name, b = to_string(number);
+    bool p = false;
+    double d, l,s;
+    string check = "@" + b;
+    fin.clear();                        //очистка ошибок потока
+    fin.seekg(0, ios::beg);              //поиск позиции от начала файла
+    while (getline(fin, fi) || !p)
+    {  
+        if (fi ==check)
         {
-           string s;
-            getline(fin, s);
-            ++n; //тернарный оператор
-            if (n == 4)
-                (Station1.Name = s);
-                n == 5 ? (Station1.Amount = stoi(s)) :
-                n == 6 ? (Station1.InWork = stoi(s)) :
-                n == 7 ? (Station1.efficiency = stof(s)) :
-                p=0;
-        } while (!fin.eof());
-    }
-    else cout << "Станции не существует";
-        cout << "КС загружена" << endl;
-    return Station1;
+        getline(fin, name);Station.SetNameS(name);
+            fin >> (l);Station.SetAmount(l);
+            fin >> (d);Station.SetInWork(d);
+            fin >> (s);Station.Setefficiency(s);
+            p = true;
+        }
+    } cout << "КС загружена" << endl;
+    return Station;
 };
 
 Pipe& SelectPipe(vector<Pipe> &groupPipe)
 {
     cout << "Введите номер: ";
     unsigned int index = getCorrectNumber(1u, groupPipe.size());
-    return groupPipe[index-1];
+    if (index == 0)
+        (cout <<endl << "нет труб");
+    else return groupPipe[index - 1];
 }
 
 compressorStation& SelectStation(vector<compressorStation>& group2Station)
@@ -428,26 +140,13 @@ compressorStation& SelectStation(vector<compressorStation>& group2Station)
     unsigned int index = getCorrectNumber(1u, group2Station.size());
     return group2Station[index - 1];
 }
-
-
-
 template<typename T>
 using Filter = bool(*)(const Pipe& Pipe1, T parameter);//вернет bool а получит элемент вектора в соответствии с параметром
 
-template<typename Type>
-bool CheckbyName(const Type& x, string parameter)
-{
-    return x.Name == parameter;
-}
-template<typename Type>
-bool CheckbyID(const Type& x, int parameter)
-{
- return x.id == parameter;
-}
 
 bool  Checkbystatus(const Pipe& Pipe1, bool parameter)
 {
-    return Pipe1.status == parameter;
+    return Pipe1.GetStatus() == parameter;
 }
 template<typename T>
 vector <int> FindbyPipeFilter(const vector<Pipe>& group, Filter<T> f, T parameter)
@@ -468,7 +167,7 @@ using Filter2 = bool(*)(const compressorStation& Station1, T parameter); //фи�
 bool  Checkbypercent(const compressorStation& Station1, double parameter)
 {
     double percent;
-    percent = floor((Station1.InWork) / (Station1.Amount) * 100);
+    percent = floor((Station1.GetInWork()) / (Station1.GetAmount()) * 100);
     return percent == parameter;
 }
 template<typename T>
@@ -484,26 +183,40 @@ vector <int> FindbyStationFilter(const vector<compressorStation>& group2, Filter
     }
     return res;
 }
-
 void ChangeStatusInGroup(vector<Pipe>& group, vector<int> ID_vector)
 {
-    int index;
     int i = 0;
     int max = ID_vector.size();
     for (auto& Pipe : group)
     {
-        for (auto const&element  : ID_vector)
-        if (Pipe.id == element)
+        for (auto const&element: ID_vector)
+        if (Pipe.GetID() == element)
         {
-            Pipe.status = !Pipe.status;
+            bool status;
+            status = Pipe.GetStatus();
+            Pipe.SetStatus(!status);
         }
+    }
+}
+void ChangeStatusInGroup1(vector<Pipe>& group, vector<int> ID_vector)
+{
+    int i = 0;
+    int max = ID_vector.size();
+    for (auto& Pipe : group)
+    {
+        for (auto const& element : ID_vector)
+            if (Pipe.GetID() == element)
+            {
+                bool status;
+                status = Pipe.GetStatus();
+                Pipe.SetStatus(!status);
+            }
     }
 }
 int main()
 {
     setlocale(LC_ALL, "rus");
     vector <Pipe> group;
-   
     vector <compressorStation> group2;
     vector<int>ID_vector;
     while (1)
@@ -512,7 +225,7 @@ int main()
         switch (getCorrectNumber(0, 17))
         {
         case 1: // создать трубу 
- {
+        {
             Pipe Pipe1;
             cin >> Pipe1;
             group.push_back(Pipe1);
@@ -520,22 +233,23 @@ int main()
         }
         case 2: // загрузить трубу
         {
-            char newfilename[25];
-            char help;
-            string str = ".txt";
+            int number = 0;
+            string newfilename, str = ".txt";
             cout << "Имя файла: ";
             cin >> newfilename;
-            ifstream fin(newfilename+str, ios::in);
+            ifstream fin(newfilename + str, ios::in);
             if (fin.is_open())
             {
                 int count = -1;
                 fin >> count;
+                number = number + count;
                 if (!(count == -1))
                 {
-                    group.reserve(count);    //опеределим кол-во памяти под трубы(под заданное кол-во объектов)
+                    group.reserve(count);//опеределим кол-во памяти под трубы(под заданное кол-во объектов)
                     while (count--)
                     {
-                        group.push_back(LoadPipe(fin));
+                        group.push_back(LoadPipe(fin, number));
+                        --number;
                     }
                     fin.close();
                 }
@@ -546,35 +260,37 @@ int main()
         }
         case 3: // показать трубу 
         {
-            for (const auto& Pipe1:group) //auto определяет что тип труба
-            cout << Pipe1 << endl ;
+            for (const auto& Pipe1 : group) //auto определяет что тип труба
+                cout << Pipe1 << endl;
             break;
         }
         case 4: // сохранить трубу
         {
-            char newfilename[25] ;
-            char help;
-            string str = ".txt";
+            string newfilename, str = ".txt";
             cout << "Имя файла: ";
             cin >> newfilename;
-            if (!(ErrorCin(newfilename)))
+            if (!ErrorCin(newfilename))
             {
                 ofstream outf(newfilename + str, ios::out);
+
                 if (outf.is_open())
                 {
                     outf << group.size() << endl;
                     for (Pipe Pipe1 : group)
                         SavePipe(outf, Pipe1);
+                    if (group.size() == 0)
+                    {
+                        cout << "нет труб" << endl;
+                    }
                     outf.close();
                 }
                 else cout << "Ошибка в открытии файла";
-            } 
+            }
             break;
         }
         case 5: // редактировать состояние трубы
-        {
-            PipeEdit(SelectPipe(group));
-            break;
+        {if (!(group.size() == 0)) PipeEdit(SelectPipe(group)); else cout << "нет труб";
+        break;
         }
         case 6: // создать станцию
         {
@@ -585,19 +301,24 @@ int main()
         }
         case 7: // сохранить станцию
         {
-                ofstream fout;
-                ofstream outf("Text.txt", ios::app);
+            string newfilename, str = ".txt";
+            cout << "Имя файла: ";
+            cin >> newfilename;
+            if (!(ErrorCin(newfilename)))
+            {
+                ofstream outf(newfilename + str, ios::out);
                 if (outf.is_open())
                 {
-                    fout << group2.size() << endl;
+                    outf << group2.size() << endl;
                     for (compressorStation Station1 : group2)
-                        SaveCompressor(fout, Station1);
-                    fout.close();
+                        SaveCompressor(outf, Station1);
+                    outf.close();
                 }
-                else cout << "Ошибка в открытии файла";
-
-                break;
+                else cout << "Ошибка в открытии файла"; break;
             }
+            else break;
+            break;
+        }
         case 8: // вывести станцию на экран
         {
             for (const auto& Station1 : group2) //auto определяет что тип cтанция
@@ -606,61 +327,64 @@ int main()
         }
         case 9: // изменить кол-во работающих цехов
         {
-            EditCompressor(SelectStation(group2));
+            if (!(group2.size() == 0)) EditCompressor(SelectStation(group2)); else cout << "нет станций";
             break;
         }
         case 10: //загрузить станцию из файла
         {
-            ifstream fin;
-            fin.open("Text.txt", ios::in);
+            string newfilename, str = ".txt";
+            int count, number = 0;
+            cout << "Имя файла: ";
+            cin >> newfilename;
+            ifstream fin(newfilename + str, ios::in);
             if (fin.is_open())
             {
-                int count;
+                count = -1;
                 fin >> count;
-                group2.reserve(count);    //опеределим кол-во памяти под студентов(под заданное кол-во объектов)
-                while (count--)
+                number = number + count;
+                if (!(count == -1))
                 {
-                    group2.push_back(LoadStation(fin));
+                    group2.reserve(count);  //опеределим кол-во памяти под станции(под заданное кол-во объектов)
+                    while (count--)
+                    {
+                        group2.push_back(LoadStation(fin, number));
+                        --number;
+                    }
+                    fin.close();
                 }
-                fin.close();
+                else cout << "нет данных";
             }
             else cout << "Ошибка при открытия файла" << endl;
             break;
         }
-        case 11: //найти трубу по имени
+        case 11: //найти трубу по ID
         {
-            string name;
-            cout << "Имя трубы: ";
-            cin >> name;
-            for (int i : FindbyPipeFilter(group, CheckbyName, name))
+            int id;
+            cout << "ID трубы: ";
+            cin >> id;
+            for (int i : FindbyPipeFilter(group, CheckbyID, id))
                 cout << group[i];
             break;
-        } 
-        case 12:
+        }
+        case 12:      //фильтр в ремонте и пакетное редактирование
         {
-            bool decision;
+            bool decision, decision2;
             bool status1;
             cout << "В ремонте?(1=да;0=нет): ";
             cin >> status1;
-            for (int i : FindbyPipeFilter(group,Checkbystatus,status1))
+            for (int i : FindbyPipeFilter(group, Checkbystatus, status1))
                 cout << group[i];
-            if (status1==true)
-                cout << "хотите ввести эти трубы в эксплуатацию?: " ;
-            cin >> decision;
-            if (cin.fail())
-            {
-                cin.clear();
-                cin.ignore(10000, '\n');
-                cout << "Недопустимое название, введите ещё раз: ";
-            }
-            else break;
+                cout << "Изменить состояние труб? 0=нет 1=да: ";
+                cin >> decision2;
+                if (decision2) for (int i : FindbyPipeFilter(group, Checkbystatus, status1)) PipeEdit(group[i]);
+            break;
         }
-        case 13: //найти KC по имени
+        case 13: //найти KC по ID
         {
-            string name;
-            cout << "Имя KC: ";
-            cin >> name;
-            for (int i : FindbyStationFilter(group2, CheckbyName, name))
+            int id;
+            cout << "ID KC: ";
+            cin >> id;
+            for (int i : FindbyStationFilter(group2, CheckbyID, id))
                 cout << group[i];
             break;
         }
@@ -694,7 +418,7 @@ int main()
         case 17: //изменить несколько труб
         {
             bool desicion;
-            
+
             int i = 1;
             bool finish = 0;
             int ID = 0;
@@ -710,14 +434,12 @@ int main()
                     if (desicion)
                     {
                         ++i;
-                        
                         cout << "Введите ID трубы: ";
                         cin >> ID;
                         ID_vector.push_back(ID);
-                       
                     }
                     else finish = true;
-                } 
+                }
 
             } while (finish == false);
             ChangeStatusInGroup(group, ID_vector);
@@ -735,8 +457,8 @@ int main()
         }
         }
         cout << '\n';
-    }
-    return 0;
-
+        }
+        return 0;
+    
 }
 
