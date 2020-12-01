@@ -15,6 +15,36 @@ Pipe::Pipe()
     length = 0;
 }
 
+string Pipe::GetName() const
+{
+    return Name;
+}
+void Pipe::SetName(string new_name)
+{
+    new_name = Name;
+}
+
+double Pipe::GetLength() const
+{
+    return length;
+}
+
+void Pipe::SetLength(double new_length)
+{
+    new_length = length;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 ostream& operator << (ostream& out, const Pipe& Pipe) // перенос вывода в конструктор класса
 {
     string SOSTOYANIE; //переменная для преобразования bool в "Да\Нет" 

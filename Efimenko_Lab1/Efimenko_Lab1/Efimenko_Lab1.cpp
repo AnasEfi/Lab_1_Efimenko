@@ -25,9 +25,9 @@ void PrintMenu()
         << "9.Изменить количество работающих цехов" << endl
         << "10.Загрузить KC из файла" << endl
         << "Фильтры" << endl
-        << "11.Найти трубу по имени" << endl
+        << "11.Найти трубу по ID" << endl
         << "12.Найти трубы в ремонте" << endl
-        << "13.Найти КС по названию" << endl
+        << "13.Найти КС по ID" << endl
         << "14.Найти КС по проценту незад.цехов" << endl
         << "15.Удалить трубу" << endl
         << "16.Удалить КС" << endl
@@ -39,21 +39,21 @@ void PrintMenu()
 Pipe LoadPipe(ifstream& fin, int& number)
 {
     Pipe Pipe;
+    fin.operator!();
     string fi,name, b = to_string(number);
-    bool p,s = false;
+    bool s,help = false;
     double d, l;
     string check = "*" + b;
     fin.clear();                        //очистка ошибок потока
     fin.seekg(0,ios::beg);              //поиск позиции от начала файла
-    while (getline(fin, fi) || !p)
+    while (getline(fin, fi) || !help)
     {
         if (fi == check)
         {
             getline(fin, name);Pipe.SetName(name);
-            fin >> (l);Pipe.SetLength(l);
-            fin >> (d);Pipe.SetDiametr(d);
-            fin >> (s);Pipe.SetStatus(s);
-            p = true;
+            fin >> Pipe.length;
+            fin >> Pipe.diametr;
+            fin >> Pipe.status;
         }
     } cout << "Труба загружена" << endl;
     return Pipe;
@@ -98,7 +98,7 @@ void EditCompressor(compressorStation& Station1)
 
 void SaveCompressor(ofstream& fout, const compressorStation Station1)
 {
-            fout<<"@" <<Station1.GetID()<< Station1.GetNameS() << "\n" << Station1.GetAmount() << "\n" << Station1.GetInWork() << "\n" << Station1.Getefficiency() << endl;
+            fout<<"@" <<Station1.GetID()<< "\n" << Station1.GetName() << "\n" << Station1.GetAmount() << "\n" << Station1.GetInWork() << "\n" << Station1.Getefficiency() << endl;
             cout << "Данные сохранены" << endl;
 }
 
@@ -115,7 +115,7 @@ compressorStation LoadStation(ifstream& fin, int& number)
     {  
         if (fi ==check)
         {
-        getline(fin, name);Station.SetNameS(name);
+        getline(fin, name);Station.SetName(name);
             fin >> (l);Station.SetAmount(l);
             fin >> (d);Station.SetInWork(d);
             fin >> (s);Station.Setefficiency(s);
@@ -129,9 +129,7 @@ Pipe& SelectPipe(vector<Pipe> &groupPipe)
 {
     cout << "Введите номер: ";
     unsigned int index = getCorrectNumber(1u, groupPipe.size());
-    if (index == 0)
-        (cout <<endl << "нет труб");
-    else return groupPipe[index - 1];
+    return groupPipe[index - 1];
 }
 
 compressorStation& SelectStation(vector<compressorStation>& group2Station)
@@ -242,7 +240,7 @@ int main()
             {
                 int count = -1;
                 fin >> count;
-                number = number + count;
+                number = count;
                 if (!(count == -1))
                 {
                     group.reserve(count);//опеределим кол-во памяти под трубы(под заданное кол-во объектов)
@@ -314,9 +312,8 @@ int main()
                         SaveCompressor(outf, Station1);
                     outf.close();
                 }
-                else cout << "Ошибка в открытии файла"; break;
+                else cout << "Ошибка в открытии файла";
             }
-            else break;
             break;
         }
         case 8: // вывести станцию на экран
@@ -359,12 +356,18 @@ int main()
         }
         case 11: //найти трубу по ID
         {
+            bool check = 0;
             int id;
-            cout << "ID трубы: ";
-            cin >> id;
-            for (int i : FindbyPipeFilter(group, CheckbyID, id))
-                cout << group[i];
-            break;
+            while (!check)
+            {
+                cout << "ID трубы: ";
+                cin >> id;
+                if (!(ErrorCin(id)))
+                {
+                    for (int i : FindbyPipeFilter(group, CheckbyID, id))
+                    {  cout << group[i]; check=1;}
+                }
+            } break;
         }
         case 12:      //фильтр в ремонте и пакетное редактирование
         {
@@ -372,21 +375,29 @@ int main()
             bool status1;
             cout << "В ремонте?(1=да;0=нет): ";
             cin >> status1;
-            for (int i : FindbyPipeFilter(group, Checkbystatus, status1))
+            auto result = FindbyPipeFilter(group, Checkbystatus, status1);
+            for (int i : result)
                 cout << group[i];
                 cout << "Изменить состояние труб? 0=нет 1=да: ";
                 cin >> decision2;
-                if (decision2) for (int i : FindbyPipeFilter(group, Checkbystatus, status1)) PipeEdit(group[i]);
+                if (decision2)
+                    for (int i : result)
+                    PipeEdit(group[i]);
             break;
         }
         case 13: //найти KC по ID
         {
+            bool check = 0;
             int id;
+            while (!check){
             cout << "ID KC: ";
             cin >> id;
-            for (int i : FindbyStationFilter(group2, CheckbyID, id))
-                cout << group[i];
-            break;
+            if (!(ErrorCin(id)))
+            {
+                for (int i : FindbyStationFilter(group2, CheckbyID, id))
+                {cout << group2[i]; check = 1;}
+            }
+        } break;
         }
         case 14: //найти KC % работ. цехов
         {
@@ -418,7 +429,6 @@ int main()
         case 17: //изменить несколько труб
         {
             bool desicion;
-
             int i = 1;
             bool finish = 0;
             int ID = 0;
@@ -440,10 +450,8 @@ int main()
                     }
                     else finish = true;
                 }
-
             } while (finish == false);
             ChangeStatusInGroup(group, ID_vector);
-
             break;
         }
         case 0: //выход

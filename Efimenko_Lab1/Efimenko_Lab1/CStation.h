@@ -17,8 +17,8 @@ public:
     compressorStation();
    
 
-    string GetNameS() const { return Name; }
-    void SetNameS(string Name) { this->Name = Name;}
+    string GetName() const { return Name; }
+    void SetName(string Name) { this->Name = Name;}
 
     double GetAmount() const { return Amount; }
     void SetAmount(double Amount) { this->Amount = Amount; }

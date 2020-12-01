@@ -32,7 +32,7 @@ bool ErrorCin(const T&)
     {
         cin.clear();
         cin.ignore(10000, '\n');
-        cout << "Недопустимое название, введите ещё раз: ";
+        cout << "Недопустимое название, введите ещё раз " << endl;;
         p = true;
     }
     return p;

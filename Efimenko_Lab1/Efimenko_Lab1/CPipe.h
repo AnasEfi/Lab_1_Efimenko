@@ -15,11 +15,11 @@ class Pipe
 public:
     Pipe();
 
-     string GetName() const {return Name;}
-     void SetName(string Name) { this-> Name = Name;}
+    string GetName() const;
+    void SetName(string new_name);
 
-     double GetLength() const {return length;}
-     void SetLength(double length) { this->length = length; }
+    double GetLength() const;
+    void SetLength(double new_length);
 
      double GetDiametr() const { return diametr; }
      void SetDiametr(double diametr) { this->diametr = diametr;}
@@ -29,7 +29,9 @@ public:
 
      int GetID() const { return id; }
      void SetID(int id) { this->id = id; }
-    
+
+
+   friend Pipe LoadPipe(ifstream& fin, int& number);
    friend std::ostream& operator << (std::ostream& out, const Pipe& Pipe);
    friend std::istream& operator >> (std::istream& in, Pipe& Pipe);
    
