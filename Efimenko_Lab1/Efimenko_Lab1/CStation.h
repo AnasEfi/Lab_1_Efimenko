@@ -29,6 +29,7 @@ public:
 
     bool GetID() const;
 
+   friend void SaveCompressor(ofstream& fout, const compressorStation Station1);
     friend compressorStation LoadStation(ifstream& fin);
     friend std::ostream& operator << (std::ostream& out, const compressorStation& Station1);
     friend std::istream& operator >> (std::istream& in, compressorStation& Station1);

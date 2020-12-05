@@ -13,6 +13,7 @@ Pipe::Pipe()
     Name = "Unknown";
     diametr = 0;
     length = 0;
+    status = 1;
 }
 
 string Pipe::GetName() const

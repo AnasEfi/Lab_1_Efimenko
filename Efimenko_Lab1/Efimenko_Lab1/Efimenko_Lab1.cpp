@@ -10,6 +10,7 @@
 #include "utils.h"
 #include "CStation.h"
 #include <cstdio>
+#include <unordered_map>
 using namespace std;
 
 void PrintMenu()
@@ -36,30 +37,25 @@ void PrintMenu()
         << "Выберите действие:";
 }
 
-Pipe LoadPipe(ifstream& fin)
-{
+Pipe LoadPipe(ifstream& fin) {
     Pipe Pipe;
-            getline(fin,Pipe.Name);
-            fin >> Pipe.length;
+            fin.ignore();
+            getline(fin, Pipe.Name);
             fin >> Pipe.diametr;
+            fin >> Pipe.length;
             fin >> Pipe.status;
-       // cout << "Труба загружена" << endl;
     return Pipe;
   }
 
-void SavePipe(ofstream& fout, const Pipe& Pipe)
-{
-        fout <<Pipe.id << "\n" << Pipe.Name << "\n" << Pipe.diametr << "\n" << Pipe.length << "\n" << Pipe.status<< endl;
+void SavePipe(ofstream& fout, const Pipe& Pipe) {
+    fout << Pipe.Name <<'\n'<< Pipe.diametr <<'\n'<< Pipe.length <<'\n'<< Pipe.status <<'\n';
         cout << "Данные сохранены" << endl;
 }
 
-void EditCompressor(compressorStation& Station1)
-{
+void EditCompressor(compressorStation& Station1){
     double shop;
-    {
         cout << "Добавить или удалить кол-во цехов в работе(укажите кол-во): ";
-        while (true)
-        {
+        while (true){
             cin >> shop;
             if (!(shop - (int)shop == 0) || (cin.fail()) || (abs(shop) + Station1.GetInWork() > Station1.GetAmount()) || (abs(shop) > Station1.GetAmount()) || ((shop)+Station1.GetInWork() < 0))
             {
@@ -73,51 +69,42 @@ void EditCompressor(compressorStation& Station1)
         shops += shop;
         Station1.SetInWork(shops);
         cout << "Успешно.Кол-во цехов в работе: " << Station1.GetInWork()<< '\n';
-    }
 }
 
-void SaveCompressor(ofstream& fout, const compressorStation Station1)
-{
-            fout <<Station1.GetID()<< "\n" << Station1.GetName() << "\n" << Station1.GetAmount() << "\n" << Station1.GetInWork() << "\n" << Station1.Getefficiency() << endl;
-            //cout << "Данные сохранены" << endl;
+void SaveCompressor(ofstream& fout, const compressorStation Station1){
+            fout << Station1.Name << "\n" << Station1.Amount << "\n" << Station1.InWork << "\n" << Station1.efficiency<<'\n';
 }
 
-compressorStation LoadStation(ifstream& fin)
-{
+compressorStation LoadStation(ifstream& fin) {
     compressorStation Station;
+    fin.ignore();
         getline(fin, Station.Name);
             fin >> Station.Amount;
             fin >> Station.InWork;
             fin >> Station.efficiency;
-      
-    //cout << "КС загружена" << endl;
     return Station;
-};
+}
 
-Pipe& SelectPipe(vector<Pipe> &groupPipe)
-{
+Pipe& SelectPipe(vector<Pipe> &groupPipe) {
     cout << "Введите номер: ";
     unsigned int index = getCorrectNumber(1u, groupPipe.size());
     return groupPipe[index - 1];
 }
 
-compressorStation& SelectStation(vector<compressorStation>& group2Station)
-{
+compressorStation& SelectStation(vector<compressorStation>& group2Station) {
     cout << "Введите номер: ";
     unsigned int index = getCorrectNumber(1u, group2Station.size());
     return group2Station[index - 1];
 }
+
 template<typename T>
 using Filter = bool(*)(const Pipe& Pipe1, T parameter);//вернет bool а получит элемент вектора в соответствии с параметром
 
-
-bool  Checkbystatus(const Pipe& Pipe1, bool parameter)
-{
+bool  Checkbystatus(const Pipe& Pipe1, bool parameter) {
     return Pipe1.GetStatus() == parameter;
 }
 template<typename T>
-vector <int> FindbyPipeFilter(const vector<Pipe>& group, Filter<T> f, T parameter)
-{
+vector <int> FindbyPipeFilter(const vector<Pipe>& group, Filter<T> f, T parameter) {
     vector <int> res;
     int i = 0;
     for (auto& pipe : group)
@@ -131,15 +118,13 @@ vector <int> FindbyPipeFilter(const vector<Pipe>& group, Filter<T> f, T paramete
 
 template<typename T>
 using Filter2 = bool(*)(const compressorStation& Station1, T parameter); //фильтр для компрессорных станций
-bool  Checkbypercent(const compressorStation& Station1, double parameter)
-{
+bool  Checkbypercent(const compressorStation& Station1, double parameter) {
     double percent;
     percent = floor((Station1.GetInWork()) / (Station1.GetAmount()) * 100);
     return percent == parameter;
 }
 template<typename T>
-vector <int> FindbyStationFilter(const vector<compressorStation>& group2, Filter2<T> f, T parameter)
-{
+vector <int> FindbyStationFilter(const vector<compressorStation>& group2, Filter2<T> f, T parameter) {
     vector <int> res;
     int i = 0;
     for (auto& Station : group2)
@@ -150,16 +135,14 @@ vector <int> FindbyStationFilter(const vector<compressorStation>& group2, Filter
     }
     return res;
 }
-void ChangeStatusInGroup(vector<Pipe>& group, vector<int> ID_vector)
-{
+void ChangeStatusInGroup(vector<Pipe>& group, vector<int> ID_vector) {
     for (auto& Pipe : group)
         for (const auto& id : ID_vector)
             if (Pipe.GetID() == id)
                 group[id].PipeEdit();
 }
 
-int main()
-{
+int main() {
     setlocale(LC_ALL, "rus");
     vector <Pipe> group;
     vector <compressorStation> group2;
@@ -182,48 +165,34 @@ int main()
             cout << "Имя файла: ";
             cin >> newfilename;
             ifstream fin(newfilename + str, ios::in);
-                if (!fin.is_open())
-                {
+                if (!fin.is_open()) {
                     cout << "Ошибка при открытия файла" << endl;
                     break;
                 }
                 int count = -1;
-                while (!fin.eof())
-                {
-                    getline(fin, data);
-                    if (data == "")
-                    {
+                while (getline(fin, data)) {
+                    if (data == "") {
                         cout << "файл пуст" << endl;
                     }
-                    else if (data == "#")
-                    {
+                    else if (data == "#") {
                         fin >> count;
                         group.reserve(count);       //опеределим кол-во памяти под трубы(под заданное кол-во объектов)
-                        while (count--)
-                        {
+                        while (count--) {
                             group.push_back(LoadPipe(fin));
                         }
+                        fin.ignore();
                     }
-                    else if (data == "*")
-                    {
+                    else if (data == "*") {
                         fin >> count;
                         group2.reserve(count);       //опеределим кол-во памяти под станции(под заданное кол-во объектов)
-                        while (count--)
-                        {
+                        while (count--) {
                             group2.push_back(LoadStation(fin));
                         }
-                    } cout << fin.tellg(); break;
-
-                }fin.close();
-            /*else if (data == "*")
-            {
-                fin >> count;
-                group2.reserve(count);  //опеределим кол-во памяти под станции(под заданное кол-во объектов)
-                while (count--)
-                {
-                    group2.push_back(LoadStation(fin));
-                }
-            }*/
+                        fin.ignore();
+                    }
+                } 
+                fin.close();
+            
             break;
         }
         case 3: // показать трубу 
@@ -235,22 +204,23 @@ int main()
         case 4: // сохранить в файл
         {
             string newfilename, str = ".txt";
+            if ((group.size() == 0) && (group2.size()==0)) {
+                cout << "нет труб и станций" << endl; break;
+            }
             cout << "Имя файла: ";
             cin >> newfilename;
-            if (!ErrorCin(newfilename))
-            {
+            if (!ErrorCin(newfilename)) {
                 ofstream outf(newfilename + str, ios::out);
-                if (outf.is_open())
-                {
-                    outf << "#"<<endl << group.size() << endl;
-                    for (Pipe Pipe1 : group)
-                        SavePipe(outf, Pipe1);
-                    outf <<"*" <<endl<< group2.size() <<endl;
-                    for (compressorStation Station1 : group2)
-                        SaveCompressor(outf, Station1);
-                    if ((group.size() == 0)&&(group2.size()))
-                    {
-                        cout << "нет труб и станций" << endl;
+                if (outf.is_open()) {
+                    if (group.size() != 0) {
+                        outf << "#" << '\n' << group.size() << '\n';
+                        for (const Pipe Pipe1 : group)
+                            SavePipe(outf, Pipe1);
+                    }
+                    if (group2.size() != 0) {
+                        outf << "*" << '\n' << group2.size() << '\n';
+                        for (const compressorStation Station1 : group2)
+                            SaveCompressor(outf, Station1);
                     }
                     outf.close();
                 }
