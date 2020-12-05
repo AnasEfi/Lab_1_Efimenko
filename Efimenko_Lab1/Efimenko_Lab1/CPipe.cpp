@@ -34,15 +34,25 @@ void Pipe::SetLength(double new_length)
     new_length = length;
 }
 
+double Pipe::GetDiametr() const
+{
+    return diametr;
+}
 
+int Pipe::GetID() const
+{
+    return id;
+}
 
+bool Pipe::GetStatus() const
+{
+    return status;
+}
 
-
-
-
-
-
-
+void Pipe::PipeEdit()
+{
+    status = !status;
+}
 
 
 ostream& operator << (ostream& out, const Pipe& Pipe) // перенос вывода в конструктор класса

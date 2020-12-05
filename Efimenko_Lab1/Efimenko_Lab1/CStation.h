@@ -17,21 +17,19 @@ public:
     compressorStation();
    
 
-    string GetName() const { return Name; }
-    void SetName(string Name) { this->Name = Name;}
+    string GetName() const;
+    void SetName(string new_name);
 
-    double GetAmount() const { return Amount; }
-    void SetAmount(double Amount) { this->Amount = Amount; }
+    double GetAmount() const;
 
-    double GetInWork() const { return InWork; }
-    void SetInWork(double InWork) { this->InWork = InWork; }
+    double GetInWork() const;
+    void SetInWork(double new_InWork);
 
-    bool Getefficiency() const { return efficiency; }
-    void Setefficiency(bool status) { this->efficiency = efficiency; }
+    bool Getefficiency() const;
 
-    bool GetID() const { return id; }
-    void SetID(int id) { this->id = id; }
+    bool GetID() const;
 
+    friend compressorStation LoadStation(ifstream& fin);
     friend std::ostream& operator << (std::ostream& out, const compressorStation& Station1);
     friend std::istream& operator >> (std::istream& in, compressorStation& Station1);
 

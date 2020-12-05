@@ -11,7 +11,43 @@ compressorStation::compressorStation()
     Amount = 0;
     InWork = 0;
     efficiency = 0;
-};
+}
+
+string compressorStation::GetName() const
+{
+    return Name;
+}
+
+void compressorStation::SetName(string new_name)
+{
+    Name = new_name;
+}
+
+double compressorStation::GetAmount() const
+{
+    return Amount;
+}
+
+double compressorStation::GetInWork() const
+{
+    return InWork;
+}
+
+void compressorStation::SetInWork(double new_InWork)
+{
+    InWork = new_InWork;
+}
+
+bool compressorStation::Getefficiency() const
+{
+    return efficiency;
+}
+
+bool compressorStation::GetID() const
+{
+    return id;
+}
+
 
 ostream& operator << (ostream& out, const compressorStation& Station1) // перенос вывода в конструктор класса
 {
