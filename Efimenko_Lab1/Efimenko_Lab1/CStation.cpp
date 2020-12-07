@@ -49,6 +49,7 @@ bool compressorStation::GetID() const
 }
 
 
+
 ostream& operator << (ostream& out, const compressorStation& Station1) // перенос вывода в конструктор класса
 {
         out << "MaxID: " << compressorStation::MaxID << "\t" << "ID: " << Station1.id << endl
