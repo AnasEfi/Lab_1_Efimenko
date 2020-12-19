@@ -5,22 +5,23 @@
 #include <stdlib.h>
 #include <fstream>
 #include <string>
-#include <vector>
-#include"CPipe.h"
 #include "utils.h"
-#include "CStation.h"
 #include <cstdio>
-#include <map>
+#include <set>
 #include <unordered_map>
 #include <algorithm>
+#include <unordered_set>
+#include "CStation.h"
+#include "CPipe.h"
 
 using namespace std;
+
 
 void PrintMenu()
 {
     cout << "1.Создать трубу" << endl
-        << "2.Изменить статус трубы (в ремонте)"<< endl
-        << "3.Создать КС"<< endl
+        << "2.Изменить статус трубы (в ремонте)" << endl
+        << "3.Создать КС" << endl
         << "4.Изменить количество работающих цехов" << endl
         << "5.Посмотреть данные о трубах" << endl
         << "6.Посмотреть данные о КС" << endl
@@ -31,79 +32,73 @@ void PrintMenu()
         << "10.Найти КС по ID" << endl
         << "11.Найти трубы в ремонте" << endl
         << "12.Найти КС по проценту незад.цехов" << endl
-        << "13.Изменить несколько труб" << endl
-        << "14.Удалить трубу" << endl
-        << "15.Удалить КС" << endl
+        << "13.Удалить трубу" << endl
+        << "14.Удалить КС" << endl
+        << "Построить сеть" << endl
+        << "15.Провести трубу " << endl
+        << "16.Построить граф " << endl
         << "0.Выход" << endl
         << "Выберите действие:";
+}
+compressorStation LoadStation(ifstream& fin) {
+    compressorStation new_station;
+    fin >> new_station.id;
+    fin.ignore();
+    getline(fin, new_station.Name);
+    fin >> new_station.Amount;
+    fin >> new_station.InWork;
+    fin >> new_station.efficiency;
+    return new_station;
+}
+void SaveCompressor(ofstream& fout, const compressorStation new_station) {
+    fout << new_station.id << "\n" << new_station.Name << "\n" << new_station.Amount << "\n" << new_station.InWork << "\n" << new_station.efficiency << '\n';
 }
 
 Pipe LoadPipe(ifstream& fin) {
     Pipe Pipe;
-            fin.ignore();
-            getline(fin, Pipe.Name);
-            fin >> Pipe.diametr;
-            fin >> Pipe.length;
-            fin >> Pipe.status;
-    return Pipe;
-  }
-
-compressorStation LoadStation(ifstream& fin) {
-    compressorStation Station;
+    fin >> Pipe.id;
     fin.ignore();
-    getline(fin, Station.Name);
-    fin >> Station.Amount;
-    fin >> Station.InWork;
-    fin >> Station.efficiency;
-    return Station;
+    getline(fin, Pipe.Name);
+    fin >> Pipe.diametr;
+    fin >> Pipe.length;
+    fin >> Pipe.status;
+    fin >> Pipe.in;
+    fin >> Pipe.out;
+    return Pipe;
 }
-
-compressorStation& SelectStation(unordered_map<int, compressorStation>& m) {
-    cout << "Введите номер: ";
-    unsigned int index = getCorrectNumber(1u, m.size());
-
-    if (m.find(index) != m.end())
-        return m.find(index)->second;
-    /* for (auto item : m) {
-         if (item.first == index) return item.second;*/
-}
-
 void SavePipe(ofstream& fout, const Pipe& Pipe) {
-    fout << Pipe.Name <<'\n'<< Pipe.diametr <<'\n'<< Pipe.length <<'\n'<< Pipe.status <<'\n';
-        cout << "Данные сохранены" << endl;
+    fout << Pipe.id << '\n' << Pipe.Name << '\n' << Pipe.diametr << '\n' << Pipe.length << '\n' << Pipe.status << '\n' << Pipe.in << '\n' << Pipe.out << '\n';
 }
-void SaveCompressor(ofstream& fout, const compressorStation Station1) {
-    fout << Station1.Name << "\n" << Station1.Amount << "\n" << Station1.InWork << "\n" << Station1.efficiency << '\n';
-}
+
 
 void EditCompressor(compressorStation& Station1){
-    double shop;
-        cout << "Добавить или удалить кол-во цехов в работе(укажите кол-во): ";
-        while (true){
-            cin >> shop;
-            if ((shop - (int)shop != 0) 
-                || (cin.fail())
-                || (abs(shop) + Station1.GetInWork()>Station1.GetAmount()) 
-                || (abs(shop) > Station1.GetAmount()) 
-                || ((shop)+Station1.GetInWork() < 0)) {
-                cin.clear();
-                cin.ignore(10000, '\n');
-                cout << "Недопустимое значение,введите еще раз: ";
-            }
-            else break;
-        }
-        Station1.SetInWork(Station1.GetInWork()+shop);
+        cout << "кол-во цехов в работе: ";
+        Station1.SetInWork(getCorrectNumber(0, Station1.GetAmount()));
         cout << "Успешно.Кол-во цехов в работе: " << Station1.GetInWork()<< '\n';
 }
 
+void PrintS(const unordered_map <int, int>& m) {
+    for (auto& i : m) {
+        cout << i.first << i.second << endl;
+    }
+}
+
+bool checkAvailablePipe(const unordered_map <int, Pipe>& mPipe) {
+    bool p = false;
+    for (auto& item : mPipe) {
+        if (item.second.GetIN() == -1)
+            p = true;
+    }
+    return p;
+}
+
 template <typename Type>
-Type& SelectPipe(unordered_map <int, Type> &m) {
+Type& SelectItem(unordered_map <int, Type> &m) {
     cout << "Введите номер: ";
     unsigned int index = getCorrectNumber(1u, m.size());
     if (m.find(index) != m.end())
         return m.find(index)->second;
 }
-
 
 template<typename Type, typename T >
 using Filter = bool(*)(const Type& group, T parameter);//вернет bool, получит элемент вектора в соответствии с параметром
@@ -119,26 +114,48 @@ vector <int> FindbyFilter(const unordered_map <int,Type>& group, Filter <Type,T>
     return res;
 }
 
-void ChangeStatusInGroup(vector<Pipe>& group, vector<int> ID_vector) {
-    for (auto& Pipe : group)
-        for (const auto& id : ID_vector)
-            if (Pipe.GetID() == id)
-                group[id].PipeEdit();
-}
 bool  Checkbypercent(const compressorStation& Station1, double parameter) {
     double percent;
-    percent = floor((Station1.GetInWork()) / (Station1.GetAmount()) * 100);
+    percent = floor((Station1.GetInWork())/(Station1.GetAmount()) * 100);
     return percent == parameter;
 }
 bool  Checkbystatus(const Pipe& current_Pipe, bool parameter) {
     return current_Pipe.GetStatus() == parameter;
 }
 
+/*template<typename Type, typename T>
+bool Existofbj(unordered_map <int, Type>& m, T index) {
+    if (m.find(index) != m.end())
+        return true;
+    else {
+        cout << "нет КС, введите другое ID: ";
+        return false;
+    }
+}*/
+
+template<typename Type, typename T>
+bool InRepair(unordered_map <int, Type>& m, T id) {
+    if (m[id].GetStatus() == 0)
+        return true;
+    else {
+        cout << "Труба в ремонте"; return false;
+    }
+}
+
+void Print(const unordered_set<int> s) {
+    for (auto x : s) {
+        cout << x <<" ";
+    }
+}
+
 int main() {
     setlocale(LC_ALL, "rus");
     unordered_map <int, Pipe> mPipe ;
     unordered_map <int, compressorStation> mStation;
-    vector<int>ID_vector;
+    set<int> involved_Pipes;
+    set<int> involved_Stations;
+    unordered_map <int, int> position_station;
+    unordered_map <int, int> position_station_invert;
     while (1) {
         PrintMenu();
         switch (getCorrectNumber(0, 16)) {
@@ -152,7 +169,7 @@ int main() {
         case 2: // изменить статус трубы
         {
             if (mPipe.size() != 0) {
-                (SelectPipe(mPipe)).PipeEdit();
+                (SelectItem(mPipe)).PipeEdit();
                 cout << "Вы успешно поменяли статус трубы" << endl;
             }
             else cout << "нет труб";
@@ -167,24 +184,23 @@ int main() {
         }
         case 4: // изменить кол-во работающих цехов
         {
-            if (!(mStation.size() == 0)) EditCompressor(SelectStation(mStation));
+            if (!(mStation.size() == 0)) EditCompressor(SelectItem(mStation));
             else cout << "нет станций";
             break;
-            
         }
         case 5: // посмотреть данные о трубах
         {
-            for (auto item : mPipe)
+            for (auto& item : mPipe)
                 cout << item.second << endl;
             break;
         }
         case 6: // посмотреть данные о КС
         {
-            for (auto item : mStation)
+            for (auto& item : mStation)
                 cout << item.second << endl;
             break;
         }
-       
+
         case 7: // записать в файл
         {
             string newfilename, str = ".txt";
@@ -198,12 +214,12 @@ int main() {
                 if (outf.is_open()) {
                     if (mPipe.size() != 0) {
                         outf << "#" << '\n' << mPipe.size() << '\n';
-                        for (const auto item : mPipe)
+                        for (auto& item : mPipe)
                             SavePipe(outf, item.second);
                     }
                     if (mStation.size() != 0) {
                         outf << "*" << '\n' << mStation.size() << '\n';
-                        for (const auto item : mStation)
+                        for (auto& item : mStation)
                             SaveCompressor(outf, item.second);
                     }
                     outf.close();
@@ -212,7 +228,7 @@ int main() {
             }
             break;
         }
-        case 8: // звгрузить из файла
+        case 8: // загрузить из файла
         {
             string newfilename, data, str = ".txt";
             cout << "Имя файла: ";
@@ -229,18 +245,18 @@ int main() {
                     fin.ignore();
                 }
                 else if (data == "#") {
-                    Pipe new_Pipe;
                     fin >> count;
                     while (count--) {
-                        mPipe.emplace(new_Pipe.GetID(), new_Pipe = LoadPipe(fin));
+                        auto new_Pipe = LoadPipe(fin);
+                        mPipe.emplace(new_Pipe.GetID(),new_Pipe);
                     }
                     fin.ignore();
                 }
                 else if (data == "*") {
-                    compressorStation new_Station;
                     fin >> count;
                     while (count--) {
-                        mStation.emplace(new_Station.GetID(), new_Station = LoadStation(fin));
+                        auto new_Station =LoadStation(fin);
+                        mStation.emplace(new_Station.GetID(), new_Station);
                     }
                     fin.ignore();
                 }
@@ -248,91 +264,181 @@ int main() {
             fin.close();
             break;
         }
-       
         case 9: //найти трубу по ID
         {
-            int id;
-                cout << "ID трубы: ";
-                cin >> id;
-                if (!(ErrorCin(id))) {
-                    if (mPipe.find(id) != mPipe.end())
-                        cout << mPipe[id];
-                }
-          break;
+            mPipe.size() != 0 ?  cout << mPipe[SelectItem(mPipe).GetID()] : cout << "трубы не существует";
+            break;
         }
-        case 10:      //найти КС по ID
-       { 
-            int id;
-            cout << "ID станции: ";
-                cin >> id;
-                if (!(ErrorCin(id)))
-                    if (!(ErrorCin(id))) {
-                        if (mStation.find(id) != mStation.end())
-                            cout << mStation[id];
-                    }
-                break;
+        case 10: //найти КС по ID
+        {
+            (mStation.size() != 0) ? cout << mStation[SelectItem(mStation).GetID()] : cout<< "КС не созаданы";  
+            break;
         }
         case 11: //найти трубы в ремонте
         {
-            
-        bool decision, decision2;
-            bool status1;
-            cout << "В ремонте?(1=да;0=нет): ";
-            cin >> status1;
-            auto result = FindbyFilter(mPipe, Checkbystatus, status1);
+            bool decision, status;
+            cout <<"В ремонте?(1=да;0=нет): ";
+            status = getCorrectNumber(0, 1);
+            auto result = FindbyFilter(mPipe, Checkbystatus, status);
             for (auto& i : result) {
                 cout << mPipe[i];
             }
-             cout << "Изменить состояние труб? 0=нет 1=да: ";
-              cin >> decision2;
-              if (decision2)
+            cout << "Изменить состояние труб? 0=нет 1=да: ";
+            decision = getCorrectNumber(0, 1);
+            if (decision == 1) {
                 for (auto& i : result)
-                 mPipe[i].PipeEdit();
+                    mPipe[i].PipeEdit();
+            }
             break;
-          
         }
         case 12: //найти KC % работ. цехов
-       {
+        {
             double percent;
             cout << "Процент работающих цехов: ";
-            cin >> percent;
+            percent = getCorrectNumber(0, 1);
             auto result = FindbyFilter(mStation, Checkbypercent, percent);
-            for (int i : result)
-                cout << mStation[result[i-1]];
+            for (auto& i : result)
+                cout << mStation[i];
             break;
         }
         case 13: //удалить трубу
         {
             int id;
             if (mPipe.size() != 0) {
-                cout << "ID трубы: ";
-                cin >> id;
+               id=SelectItem(mPipe).GetID();
                 if (mPipe.find(id) != mPipe.end())
                     mPipe.erase(id);
             }
             else cout << "нет труб" << endl;
-        
+            break;
         }
         case 14: //удалить KC
         {
-           int id;
-           if (mStation.size() != 0) {
-               cout << "ID трубы: ";
-               cin >> id;
-               if (mStation.find(id) != mStation.end())
-                   mPipe.erase(id);
-           }
-            else cout << "нет труб" << endl;
+            int id;
+            if (mStation.size() != 0)
+            {
+                id = SelectItem(mStation).GetID();
+                if (mStation.find(id) != mStation.end())
+                    mStation.erase(id);
+            }
+            else cout << "нет КС" << endl;
+            break;
         }
-        case 15: //изменить несколько труб
+        case 15: //Провести трубу
         {
-          /*  bool desicion;
-            int i = 1;
-             cout << "ID КС: ";
-            cin >> id;
-            for (int i : FindbyStationFilter(group2, CheckbyID, id))
-                group2.erase(group2.begin() + (id - 1));
-            break;*/
+            int InID = -1;
+            int OutID = -1;
+            int PipeID = -1;
+            auto result = FindbyFilter(mPipe, Checkbystatus, false);
+            int inwork = result.size();
+            if (checkAvailablePipe(mPipe)==false || mStation.size()<=1 || mPipe.size()==0 || inwork==0) {
+                cout << "нет доступных труб или станций" << endl;
+                break;
+            }
+            else {
+                cout << "соединить КС [ID]: ";
+                OutID = SelectItem(mStation).GetID();
+                cout << "c КС [ID]: ";
+                while (true) {
+                    InID = SelectItem(mStation).GetID();
+                   if (InID == OutID) 
+                       cout <<"Цех начала трубы,введите другой: " ;
+                       else break;
+                }
+
+                cout << "трубой [ID]: ";
+                do
+                PipeID = SelectItem(mPipe).GetID();
+                while (mPipe[PipeID].GetStatus() == true);
+                    mPipe.find(PipeID)->second.SetIN(InID);
+                    mPipe.find(PipeID)->second.SetOUT(OutID);
+                break;
+            }
+        }
+        case 16: //Получим граф
+        {
+            for (auto& item : mPipe) {
+                if (item.second.GetStatus() == 0 || item.second.GetIN() != -1 || item.second.Getout() != -1) {
+                    involved_Pipes.insert(item.first);
+                    involved_Stations.insert(item.second.GetIN());
+                    involved_Stations.insert(item.second.Getout());
+                }
+            }
+            int k = 0;
+            for (auto i : involved_Stations) {
+                position_station.emplace(i, k);
+                ++k;
+            }
+            int d = 0;
+            for (auto i : involved_Stations) {
+                position_station_invert.emplace(d, i);
+                ++d;
+            }
+            PrintS(position_station);
+            PrintS(position_station_invert);
+            int x = involved_Stations.size();
+            vector<vector<double>> matrix;
+            int val = 0;
+            for (int i = 0; i < x; i++)
+            {
+                matrix.push_back(vector<double>());
+                for (int j = 0; j < x; j++)
+                {
+                    matrix.back().push_back(val);
+                }
+            }
+
+            int indexi, indexj;
+            for (auto k : involved_Pipes) {
+                for (auto item : mPipe) {
+                    if (k == item.first) {
+                        indexi = position_station[item.second.Getout()];
+                        indexj = position_station[item.second.GetIN()];
+                        matrix[indexi][indexj] = item.second.GetWeight();
+                        break;
+                    }
+                }
+            }
+
+            for (int i = 0; i < x; i++)
+            {
+                for (int j = 0; j < x; j++)
+                {
+                    std::cout << matrix[i][j] << "\t";
+                }
+                cout << "\n";
+            }
+            unordered_set<int>sort;
+            double sum = 0;
+            auto matrix2 = matrix;
+            //тополог сортировка
+            do {
+                for (int j = 0; j < x; j++) {
+                    for (int i = 0;i < x;i++) {
+                        sum = sum + matrix2[i][j];
+                    }
+                    if (sum == 0) {
+                        sort.insert(j);
+                        for (int i = 0; i < x; i++) {
+                            if (matrix2[j][i] != 0) {
+                                sort.insert(i);
+                                matrix2[j][i] = 0;
+                            }
+                        }
+                    }
+                }
+            } while (sort.size() != involved_Stations.size());
+            Print(sort);
+
+           
+                for (auto& i : sort) {
+                    if (position_station_invert.find(i) != position_station_invert.end())
+                        cout<< endl << position_station_invert.find(i)->second;
+                }
+            
+            //преобразование поизций в веришины
+        
+            break;
         }
         case 0: //выход
         {

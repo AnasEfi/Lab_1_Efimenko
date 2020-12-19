@@ -26,7 +26,7 @@ bool ErrorCin(const T&) {
     if (cin.fail()) {
         cin.clear();
         cin.ignore(10000, '\n');
-        cout << "Недопустимое название, введите ещё раз " << endl;;
+        cout << "Недопустимое название, введите ещё раз " ;
         p = true;
     }
     return p;
@@ -42,11 +42,3 @@ bool CheckbyName(const Type& x, string parameter){
     return x.GetName() == parameter;
 }
 
-/*template<typename Type,typename Key, typename Value>
-Type& Selection( unordered_map <Key, Value>& m) {
-    cout << "Введите номер: ";
-    unsigned int index = getCorrectNumber(1u, m.size());
-    for (auto item : m) {
-        if (item.first == index) return item.second;
-    }
-}*/

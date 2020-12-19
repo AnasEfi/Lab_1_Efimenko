@@ -8,30 +8,27 @@ using namespace std;
 class compressorStation
 {
     int id;
-    double Amount;
-    double InWork;
+    int Amount;
+    int InWork;
     float efficiency;
-    static int MaxID;
     string Name;
+    static int MaxID;
 public:
+ 
     compressorStation();
-   
 
     string GetName() const;
     void SetName(string new_name);
 
-    double GetAmount() const;
-
-    double GetInWork() const;
-    void SetInWork(double new_InWork);
-
+    int GetAmount() const;
+    int GetInWork() const;
     bool Getefficiency() const;
+    int GetID() const;
 
-    bool GetID() const;
+    void SetInWork(int new_InWork);
 
-    void EditCompressor();
-
-   friend void SaveCompressor(ofstream& fout, const compressorStation Station1);
+ 
+    friend void SaveCompressor(ofstream& fout, const compressorStation Station1);
     friend compressorStation LoadStation(ifstream& fin);
     friend std::ostream& operator << (std::ostream& out, const compressorStation& Station1);
     friend std::istream& operator >> (std::istream& in, compressorStation& Station1);

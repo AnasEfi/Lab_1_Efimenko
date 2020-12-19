@@ -1,19 +1,21 @@
 #include "CPipe.h"
 #include "utils.h"
 #include <string>
+#include <fstream>
 #include<iostream>
 
 
 using namespace std;
 int Pipe :: MaxID = 0;
 
-Pipe::Pipe()
-{
+Pipe::Pipe() {
     id = ++MaxID;
     Name = "Unknown";
     diametr = 0;
     length = 0;
     status = 1;
+    in = -1;
+    out = -1;
 }
 
 string Pipe::GetName() const
@@ -22,7 +24,7 @@ string Pipe::GetName() const
 }
 void Pipe::SetName(string new_name)
 {
-    new_name = Name;
+   Name = new_name;
 }
 
 double Pipe::GetLength() const
@@ -30,10 +32,6 @@ double Pipe::GetLength() const
     return length;
 }
 
-void Pipe::SetLength(double new_length)
-{
-    new_length = length;
-}
 
 double Pipe::GetDiametr() const
 {
@@ -48,6 +46,31 @@ int Pipe::GetID() const
 bool Pipe::GetStatus() const
 {
     return status;
+}
+
+double Pipe::GetWeight() const
+{
+    return length;
+}
+
+int Pipe::GetIN() const
+{
+    return in;
+}
+
+void Pipe::SetIN(int new_in)
+{
+    in = new_in;
+}
+
+int Pipe::Getout() const
+{
+    return out;
+}
+
+void Pipe::SetOUT(int new_out)
+{
+    out = new_out;
 }
 
 void Pipe::PipeEdit()
@@ -127,4 +150,3 @@ istream& operator >> (istream& in, Pipe& Pipe) // оператор ввода
     cout << "Данные о трубе успешно сохранены" << endl;
     return in;
 }
-
