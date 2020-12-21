@@ -1,7 +1,8 @@
 #pragma once
 #include<iostream>
-#include "CPipe.h"
 
+template<typename Type, typename T >
+using Filter = bool(*)(const Type& group, T parameter);//вернет bool, получит элемент вектора в соответствии с параметром
 
 using namespace std;
 template <typename Type>
@@ -19,6 +20,7 @@ Type getCorrectNumber(Type min, Type max){
     }
     return x;
 }
+
 
 template <typename T>
 bool ErrorCin(const T&) {

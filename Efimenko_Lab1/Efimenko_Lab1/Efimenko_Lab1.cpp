@@ -5,17 +5,17 @@
 #include <stdlib.h>
 #include <fstream>
 #include <string>
-#include "utils.h"
 #include <cstdio>
 #include <set>
 #include <unordered_map>
 #include <algorithm>
 #include <unordered_set>
-#include "CStation.h"
 #include "CPipe.h"
+#include "utils.h"
+#include "CStation.h"
+#include "NetWork.h"
 
 using namespace std;
-
 
 void PrintMenu()
 {
@@ -40,71 +40,18 @@ void PrintMenu()
         << "0.Выход" << endl
         << "Выберите действие:";
 }
-compressorStation LoadStation(ifstream& fin) {
-    compressorStation new_station;
-    fin >> new_station.id;
-    fin.ignore();
-    getline(fin, new_station.Name);
-    fin >> new_station.Amount;
-    fin >> new_station.InWork;
-    fin >> new_station.efficiency;
-    return new_station;
-}
-void SaveCompressor(ofstream& fout, const compressorStation new_station) {
-    fout << new_station.id << "\n" << new_station.Name << "\n" << new_station.Amount << "\n" << new_station.InWork << "\n" << new_station.efficiency << '\n';
-}
 
-Pipe LoadPipe(ifstream& fin) {
-    Pipe Pipe;
-    fin >> Pipe.id;
-    fin.ignore();
-    getline(fin, Pipe.Name);
-    fin >> Pipe.diametr;
-    fin >> Pipe.length;
-    fin >> Pipe.status;
-    fin >> Pipe.in;
-    fin >> Pipe.out;
-    return Pipe;
-}
-void SavePipe(ofstream& fout, const Pipe& Pipe) {
-    fout << Pipe.id << '\n' << Pipe.Name << '\n' << Pipe.diametr << '\n' << Pipe.length << '\n' << Pipe.status << '\n' << Pipe.in << '\n' << Pipe.out << '\n';
-}
-
-
-void EditCompressor(compressorStation& Station1){
-        cout << "кол-во цехов в работе: ";
-        Station1.SetInWork(getCorrectNumber(0, Station1.GetAmount()));
-        cout << "Успешно.Кол-во цехов в работе: " << Station1.GetInWork()<< '\n';
-}
-
-void PrintS(const unordered_map <int, int>& m) {
-    for (auto& i : m) {
-        cout << i.first << i.second << endl;
-    }
-}
-
-bool checkAvailablePipe(const unordered_map <int, Pipe>& mPipe) {
-    bool p = false;
-    for (auto& item : mPipe) {
-        if (item.second.GetIN() == -1)
-            p = true;
-    }
-    return p;
-}
 
 template <typename Type>
-Type& SelectItem(unordered_map <int, Type> &m) {
+Type& SelectItem(unordered_map <int, Type>& m) {
     cout << "Введите номер: ";
     unsigned int index = getCorrectNumber(1u, m.size());
     if (m.find(index) != m.end())
         return m.find(index)->second;
 }
 
-template<typename Type, typename T >
-using Filter = bool(*)(const Type& group, T parameter);//вернет bool, получит элемент вектора в соответствии с параметром
-
 template<typename Type, typename T>
-vector <int> FindbyFilter(const unordered_map <int,Type>& group, Filter <Type,T> f, T parameter) {
+vector <int> FindbyFilter(const unordered_map <int, Type>& group, Filter <Type, T> f, T parameter) {
     vector <int> res;
     for (auto& item : group) {
         if (f(item.second, parameter)) {
@@ -123,16 +70,6 @@ bool  Checkbystatus(const Pipe& current_Pipe, bool parameter) {
     return current_Pipe.GetStatus() == parameter;
 }
 
-/*template<typename Type, typename T>
-bool Existofbj(unordered_map <int, Type>& m, T index) {
-    if (m.find(index) != m.end())
-        return true;
-    else {
-        cout << "нет КС, введите другое ID: ";
-        return false;
-    }
-}*/
-
 template<typename Type, typename T>
 bool InRepair(unordered_map <int, Type>& m, T id) {
     if (m[id].GetStatus() == 0)
@@ -142,20 +79,14 @@ bool InRepair(unordered_map <int, Type>& m, T id) {
     }
 }
 
-void Print(const unordered_set<int> s) {
-    for (auto x : s) {
-        cout << x <<" ";
-    }
-}
 
 int main() {
     setlocale(LC_ALL, "rus");
     unordered_map <int, Pipe> mPipe ;
     unordered_map <int, compressorStation> mStation;
-    set<int> involved_Pipes;
-    set<int> involved_Stations;
-    unordered_map <int, int> position_station;
-    unordered_map <int, int> position_station_invert;
+    unordered_map<int, int> connection_between_Stations;
+    
+    NetWork Current_Network;
     while (1) {
         PrintMenu();
         switch (getCorrectNumber(0, 16)) {
@@ -184,7 +115,8 @@ int main() {
         }
         case 4: // изменить кол-во работающих цехов
         {
-            if (!(mStation.size() == 0)) EditCompressor(SelectItem(mStation));
+            if (!(mStation.size() == 0))
+                EditCompressor(SelectItem(mStation));
             else cout << "нет станций";
             break;
         }
@@ -255,7 +187,7 @@ int main() {
                 else if (data == "*") {
                     fin >> count;
                     while (count--) {
-                        auto new_Station =LoadStation(fin);
+                        auto new_Station=LoadStation(fin);
                         mStation.emplace(new_Station.GetID(), new_Station);
                     }
                     fin.ignore();
@@ -318,126 +250,28 @@ int main() {
             if (mStation.size() != 0)
             {
                 id = SelectItem(mStation).GetID();
-                if (mStation.find(id) != mStation.end())
+                if (mStation.find(id) != mStation.end()) {
                     mStation.erase(id);
+
+                    for (auto& it : mPipe)
+                    {
+                        if (it.second.GetIN() == id) it.second.SetIN(-1);
+                        if (it.second.Getout() == id) it.second.SetOUT(-1);
+                    }
+                }
             }
             else cout << "нет КС" << endl;
             break;
         }
         case 15: //Провести трубу
         {
-            int InID = -1;
-            int OutID = -1;
-            int PipeID = -1;
-            auto result = FindbyFilter(mPipe, Checkbystatus, false);
-            int inwork = result.size();
-            if (checkAvailablePipe(mPipe)==false || mStation.size()<=1 || mPipe.size()==0 || inwork==0) {
-                cout << "нет доступных труб или станций" << endl;
+            Current_Network.ConnectPipes(mPipe,mStation);
                 break;
-            }
-            else {
-                cout << "соединить КС [ID]: ";
-                OutID = SelectItem(mStation).GetID();
-                cout << "c КС [ID]: ";
-                while (true) {
-                    InID = SelectItem(mStation).GetID();
-                   if (InID == OutID) 
-                       cout <<"Цех начала трубы,введите другой: " ;
-                       else break;
-                }
-
-                cout << "трубой [ID]: ";
-                do
-                PipeID = SelectItem(mPipe).GetID();
-                while (mPipe[PipeID].GetStatus() == true);
-                    mPipe.find(PipeID)->second.SetIN(InID);
-                    mPipe.find(PipeID)->second.SetOUT(OutID);
-                break;
-            }
+         
         }
         case 16: //Получим граф
         {
-            for (auto& item : mPipe) {
-                if (item.second.GetStatus() == 0 || item.second.GetIN() != -1 || item.second.Getout() != -1) {
-                    involved_Pipes.insert(item.first);
-                    involved_Stations.insert(item.second.GetIN());
-                    involved_Stations.insert(item.second.Getout());
-                }
-            }
-            int k = 0;
-            for (auto i : involved_Stations) {
-                position_station.emplace(i, k);
-                ++k;
-            }
-            int d = 0;
-            for (auto i : involved_Stations) {
-                position_station_invert.emplace(d, i);
-                ++d;
-            }
-            PrintS(position_station);
-            PrintS(position_station_invert);
-            int x = involved_Stations.size();
-            vector<vector<double>> matrix;
-            int val = 0;
-            for (int i = 0; i < x; i++)
-            {
-                matrix.push_back(vector<double>());
-                for (int j = 0; j < x; j++)
-                {
-                    matrix.back().push_back(val);
-                }
-            }
-
-            int indexi, indexj;
-            for (auto k : involved_Pipes) {
-                for (auto item : mPipe) {
-                    if (k == item.first) {
-                        indexi = position_station[item.second.Getout()];
-                        indexj = position_station[item.second.GetIN()];
-                        matrix[indexi][indexj] = item.second.GetWeight();
-                        break;
-                    }
-                }
-            }
-
-            for (int i = 0; i < x; i++)
-            {
-                for (int j = 0; j < x; j++)
-                {
-                    std::cout << matrix[i][j] << "\t";
-                }
-                cout << "\n";
-            }
-            unordered_set<int>sort;
-            double sum = 0;
-            auto matrix2 = matrix;
-            //тополог сортировка
-            do {
-                for (int j = 0; j < x; j++) {
-                    for (int i = 0;i < x;i++) {
-                        sum = sum + matrix2[i][j];
-                    }
-                    if (sum == 0) {
-                        sort.insert(j);
-                        for (int i = 0; i < x; i++) {
-                            if (matrix2[j][i] != 0) {
-                                sort.insert(i);
-                                matrix2[j][i] = 0;
-                            }
-                        }
-                    }
-                }
-            } while (sort.size() != involved_Stations.size());
-            Print(sort);
-
-           
-                for (auto& i : sort) {
-                    if (position_station_invert.find(i) != position_station_invert.end())
-                        cout<< endl << position_station_invert.find(i)->second;
-                }
-            
-            //преобразование поизций в веришины
-        
+            Current_Network.Create_Graph(mPipe, mStation);
             break;
         }
         case 0: //выход

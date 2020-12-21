@@ -4,7 +4,6 @@
 #include <fstream>
 #include<iostream>
 
-
 using namespace std;
 int Pipe :: MaxID = 0;
 
@@ -16,6 +15,7 @@ Pipe::Pipe() {
     status = 1;
     in = -1;
     out = -1;
+    used = false;
 }
 
 string Pipe::GetName() const
@@ -68,6 +68,16 @@ int Pipe::Getout() const
     return out;
 }
 
+int Pipe::GetUsed() const
+{
+    return used;
+}
+
+void Pipe::SetUsed(bool new_status)
+{
+    used = true;
+}
+
 void Pipe::SetOUT(int new_out)
 {
     out = new_out;
@@ -78,6 +88,24 @@ void Pipe::PipeEdit()
     status = !status;
 }
 
+
+void SavePipe(ofstream& fout, const Pipe& Pipe) {
+    fout << Pipe.id << '\n' << Pipe.Name << '\n' << Pipe.diametr << '\n' << Pipe.length << '\n' << Pipe.status << '\n' << Pipe.in << '\n' << Pipe.out << '\n';
+}
+
+Pipe LoadPipe(ifstream& fin)
+{
+    Pipe Pipe;
+    fin >> Pipe.id;
+    fin.ignore();
+    getline(fin, Pipe.Name);
+    fin >> Pipe.diametr;
+    fin >> Pipe.length;
+    fin >> Pipe.status;
+    fin >> Pipe.in;
+    fin >> Pipe.out;
+    return Pipe;
+}
 
 ostream& operator << (ostream& out, const Pipe& Pipe) // перенос вывода в конструктор класса
 {

@@ -39,6 +39,25 @@ void compressorStation::SetInWork(int new_InWork)
     InWork = new_InWork;
 }
 
+void EditCompressor(compressorStation& Station1)
+{
+    cout << "кол-во цехов в работе: ";
+    Station1.SetInWork(getCorrectNumber(0, Station1.GetAmount()));
+    cout << "”спешно. ол-во цехов в работе: " << Station1.GetInWork() << '\n';
+}
+
+ compressorStation LoadStation(std::ifstream& fin)
+{
+    compressorStation new_station;
+    fin >> new_station.id;
+    fin.ignore();
+    getline(fin, new_station.Name);
+    fin >> new_station.Amount;
+    fin >> new_station.InWork;
+    fin >> new_station.efficiency;
+    return new_station;
+}
+
 bool compressorStation::Getefficiency() const
 {
     return efficiency;
@@ -49,6 +68,9 @@ int compressorStation::GetID() const
     return id;
 }
 
+void SaveCompressor(ofstream& fout, const compressorStation new_station) {
+    fout << new_station.id << "\n" << new_station.Name << "\n" << new_station.Amount << "\n" << new_station.InWork << "\n" << new_station.efficiency << '\n';
+}
 
 
 ostream& operator << (ostream& out, const compressorStation& Station1) // перенос вывода в конструктор класса
