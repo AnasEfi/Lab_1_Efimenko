@@ -85,8 +85,8 @@ int main() {
     unordered_map <int, Pipe> mPipe ;
     unordered_map <int, compressorStation> mStation;
     unordered_map<int, int> connection_between_Stations;
-    
     NetWork Current_Network;
+    
     while (1) {
         PrintMenu();
         switch (getCorrectNumber(0, 16)) {
@@ -115,8 +115,11 @@ int main() {
         }
         case 4: // изменить кол-во работающих цехов
         {
-            if (!(mStation.size() == 0))
-                EditCompressor(SelectItem(mStation));
+            if (!(mStation.size() == 0)) {
+                int ID;
+                ID= SelectItem(mStation).GetID();
+                    EditCompressor(mStation[ID]);
+            }
             else cout << "нет станций";
             break;
         }
@@ -135,6 +138,7 @@ int main() {
 
         case 7: // записать в файл
         {
+            ofstream fout;
             string newfilename, str = ".txt";
             if ((mPipe.size() == 0) && (mStation.size() == 0)) {
                 cout << "нет труб и станций" << endl; break;
@@ -142,19 +146,19 @@ int main() {
             cout << "Имя файла: ";
             cin >> newfilename;
             if (!ErrorCin(newfilename)) {
-                ofstream outf(newfilename + str, ios::out);
-                if (outf.is_open()) {
+                fout.open(newfilename + str, ios::out);
+                if (fout.is_open()) {
                     if (mPipe.size() != 0) {
-                        outf << "#" << '\n' << mPipe.size() << '\n';
+                        fout << "#" << '\n' << mPipe.size() << '\n';
                         for (auto& item : mPipe)
-                            SavePipe(outf, item.second);
+                            fout << item.second;
                     }
                     if (mStation.size() != 0) {
-                        outf << "*" << '\n' << mStation.size() << '\n';
+                        fout << "*" << '\n' << mStation.size() << '\n';
                         for (auto& item : mStation)
-                            SaveCompressor(outf, item.second);
+                            fout<< item.second;
                     }
-                    outf.close();
+                    fout.close();
                 }
                 else cout << "Ошибка в открытии файла";
             }
@@ -179,7 +183,8 @@ int main() {
                 else if (data == "#") {
                     fin >> count;
                     while (count--) {
-                        auto new_Pipe = LoadPipe(fin);
+                        Pipe new_Pipe;
+                        fin >> new_Pipe;
                         mPipe.emplace(new_Pipe.GetID(),new_Pipe);
                     }
                     fin.ignore();
@@ -187,7 +192,8 @@ int main() {
                 else if (data == "*") {
                     fin >> count;
                     while (count--) {
-                        auto new_Station=LoadStation(fin);
+                        compressorStation new_Station;
+                        fin >> new_Station;
                         mStation.emplace(new_Station.GetID(), new_Station);
                     }
                     fin.ignore();

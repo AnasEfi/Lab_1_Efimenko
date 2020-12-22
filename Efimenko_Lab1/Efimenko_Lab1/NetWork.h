@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <unordered_set>
+#include <iomanip>
 #include "utils.h"
 #include "CStation.h"
 #include "CPipe.h"
@@ -10,15 +11,16 @@
 class NetWork
 {
 private:
+	vector<vector<double>> matrix;
 	set<int> involved_Pipes;
 	set<int> involved_Stations;
 	unordered_map <int, int> position_station;
 	unordered_map <int, int> position_station_invert;
 	vector<int> used;
 	bool ExistNetwork;
-	vector<vector<double>> matrix2;
 	vector<int> ans;
 	unordered_map<int, int> connection_between_Stations;
+	
 public:
 	
 	NetWork();
@@ -26,9 +28,9 @@ public:
 	void PrintS(const unordered_map<int, int>& m);
 	void ConnectPipes(unordered_map<int, Pipe>& mPipe, unordered_map<int, compressorStation>& mStation);
 	bool cycle(int start, std::vector <std::vector <double>> g, std::vector <int>& visit);
+	void ViewNetwork(const std::vector<std::vector<double>>& graph, const std::set<int>& Station_Connection);
 	void Create_Graph(unordered_map<int, Pipe>& mPipe, unordered_map<int, compressorStation>& mStation);
 	bool checkAvailablePipe(const unordered_map<int, Pipe>& mPipe);
-
 
 };
 template <typename Type>

@@ -20,12 +20,9 @@ public:
     bool Getefficiency() const;
     int GetID() const;
     void SetInWork(int new_InWork);
-    
-    friend void SaveCompressor(ofstream& fout, const compressorStation Station1);
-    friend compressorStation LoadStation(std::ifstream& fin);
+    friend void EditCompressor(compressorStation& Station1);
+    friend std::ofstream& operator <<(ofstream& fout, const compressorStation Station1);
+    friend std::ifstream& operator >>(std::ifstream& fin, compressorStation& Station1);
     friend std::ostream& operator << (std::ostream& out, const compressorStation& Station1);
     friend std::istream& operator >> (std::istream& in, compressorStation& Station1);
 };
-compressorStation LoadStation(std::ifstream& fin);
-void SaveCompressor(ofstream& fout, const compressorStation new_station);
-void EditCompressor(compressorStation& Station1);

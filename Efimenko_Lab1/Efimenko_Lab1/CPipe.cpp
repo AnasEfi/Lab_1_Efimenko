@@ -88,14 +88,14 @@ void Pipe::PipeEdit()
     status = !status;
 }
 
-
-void SavePipe(ofstream& fout, const Pipe& Pipe) {
+std::ofstream& operator<<(ofstream& fout, const Pipe& Pipe)
+{
     fout << Pipe.id << '\n' << Pipe.Name << '\n' << Pipe.diametr << '\n' << Pipe.length << '\n' << Pipe.status << '\n' << Pipe.in << '\n' << Pipe.out << '\n';
+    return fout;
 }
 
-Pipe LoadPipe(ifstream& fin)
+std::istream& operator>>(ifstream& fin, Pipe& Pipe)
 {
-    Pipe Pipe;
     fin >> Pipe.id;
     fin.ignore();
     getline(fin, Pipe.Name);
@@ -104,7 +104,7 @@ Pipe LoadPipe(ifstream& fin)
     fin >> Pipe.status;
     fin >> Pipe.in;
     fin >> Pipe.out;
-    return Pipe;
+    return fin;
 }
 
 ostream& operator << (ostream& out, const Pipe& Pipe) // перенос вывода в конструктор класса
