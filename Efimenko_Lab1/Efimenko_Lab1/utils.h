@@ -21,6 +21,17 @@ Type getCorrectNumber(Type min, Type max){
     return x;
 }
 
+//template <typename Type>
+//Type  getCorrectNumberforGraph() {
+//    Type x;
+//    while ((cin >> x).fail()) {
+//        cin.clear();
+//        cin.ignore(10000, '\n');
+//        cout << "Ошибка, выберете другую:";
+//    }
+//    return x;
+//}
+
 
 template <typename T>
 bool ErrorCin(const T&) {

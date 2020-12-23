@@ -50,7 +50,7 @@ bool Pipe::GetStatus() const
 
 double Pipe::GetWeight() const
 {
-    return length;
+    return length*2;
 }
 
 int Pipe::GetIN() const

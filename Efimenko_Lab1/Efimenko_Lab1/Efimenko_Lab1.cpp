@@ -50,6 +50,15 @@ Type& SelectItem(unordered_map <int, Type>& m) {
         return m.find(index)->second;
 }
 
+template <typename Type>
+Type& SelectItemFromGraph(const set<Type>& m) {
+    set<int>::iterator it;
+    cout << "Введите номер: ";
+    int index = getCorrectNumber(1u, m.size());
+    if (m.count(index) != 0);
+        return index;
+}
+
 template<typename Type, typename T>
 vector <int> FindbyFilter(const unordered_map <int, Type>& group, Filter <Type, T> f, T parameter) {
     vector <int> res;
@@ -78,8 +87,6 @@ bool InRepair(unordered_map <int, Type>& m, T id) {
         cout << "Труба в ремонте"; return false;
     }
 }
-
-
 int main() {
     setlocale(LC_ALL, "rus");
     unordered_map <int, Pipe> mPipe ;
@@ -89,7 +96,7 @@ int main() {
     
     while (1) {
         PrintMenu();
-        switch (getCorrectNumber(0, 16)) {
+        switch (getCorrectNumber(0, 18)) {
         case 1: // создать трубу 
         {
             Pipe new_Pipe;
@@ -277,8 +284,35 @@ int main() {
         }
         case 16: //Получим граф
         {
-            Current_Network.Create_Graph(mPipe, mStation);
+            Current_Network.Create_Graph(mPipe, mStation, Current_Network);
             break;
+        }
+        case 17: //ПРОПУСКНАЯ СПОСОБНОСТЬ   
+        {
+            int  v_out, v_in;
+            double MaxFlow;
+            Current_Network.Create_Graph(mPipe, mStation, Current_Network);
+            v_out = SelectItemFromGraph(Current_Network.GetStations());
+            v_in = SelectItemFromGraph(Current_Network.GetStations());
+            unordered_map<int, int> positions = Current_Network.GetPosition();
+            unordered_map<int, int>::iterator it;
+            it = positions.find(v_out);
+            v_out = it->second;
+            it = positions.find(v_in);
+            v_in = it->second;
+            MaxFlow = Current_Network.max_flow(Current_Network, v_out, v_in);
+            cout << "Максимальный поток: " << MaxFlow;
+            break;
+        }
+        case 18://минимальный путь;
+        {
+            int  v_out, v_in;
+            Current_Network.Create_Graph(mPipe, mStation, Current_Network);
+            v_out = SelectItemFromGraph(Current_Network.GetStations());
+            v_in = SelectItemFromGraph(Current_Network.GetStations());
+            Current_Network.BFS(Current_Network, v_out, v_in);
+
+
         }
         case 0: //выход
         {
