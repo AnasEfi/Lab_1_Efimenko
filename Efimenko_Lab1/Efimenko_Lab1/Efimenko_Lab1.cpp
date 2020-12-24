@@ -1,6 +1,4 @@
 ﻿// Efimenko_Lab1.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
 #include <iostream>
 #include <stdlib.h>
 #include <fstream>
@@ -37,10 +35,11 @@ void PrintMenu()
         << "Построить сеть" << endl
         << "15.Провести трубу " << endl
         << "16.Построить граф " << endl
+        << "17.Максимальный поток" << endl
+        << "18.Минимальный путь" << endl
         << "0.Выход" << endl
         << "Выберите действие:";
 }
-
 
 template <typename Type>
 Type& SelectItem(unordered_map <int, Type>& m) {
@@ -50,25 +49,6 @@ Type& SelectItem(unordered_map <int, Type>& m) {
         return m.find(index)->second;
 }
 
-template <typename Type>
-Type& SelectItemFromGraph(const set<Type>& m) {
-    set<int>::iterator it;
-    cout << "Введите номер: ";
-    int index = getCorrectNumber(1u, m.size());
-    if (m.count(index) != 0);
-        return index;
-}
-
-template<typename Type, typename T>
-vector <int> FindbyFilter(const unordered_map <int, Type>& group, Filter <Type, T> f, T parameter) {
-    vector <int> res;
-    for (auto& item : group) {
-        if (f(item.second, parameter)) {
-            res.push_back(item.first);
-        }
-    }
-    return res;
-}
 
 bool  Checkbypercent(const compressorStation& Station1, double parameter) {
     double percent;
@@ -87,6 +67,18 @@ bool InRepair(unordered_map <int, Type>& m, T id) {
         cout << "Труба в ремонте"; return false;
     }
 }
+template<typename Type, typename T>
+vector <int> FindbyFilter(const unordered_map <int, Type>& group, Filter <Type, T> f, T parameter) {
+    vector <int> res;
+    for (auto& item : group) {
+        if (f(item.second, parameter)) {
+            res.push_back(item.first);
+        }
+    }
+    return res;
+}
+
+
 int main() {
     setlocale(LC_ALL, "rus");
     unordered_map <int, Pipe> mPipe ;
@@ -285,33 +277,49 @@ int main() {
         case 16: //Получим граф
         {
             Current_Network.Create_Graph(mPipe, mStation, Current_Network);
+            if (Current_Network.GetExistion()) {
+                Current_Network.ViewNetwork(Current_Network);
+                Current_Network.Topological_Sort(Current_Network);
+            }
             break;
         }
-        case 17: //ПРОПУСКНАЯ СПОСОБНОСТЬ   
+        case 17: //Максимальный поток  
         {
             int  v_out, v_in;
             double MaxFlow;
             Current_Network.Create_Graph(mPipe, mStation, Current_Network);
-            v_out = SelectItemFromGraph(Current_Network.GetStations());
-            v_in = SelectItemFromGraph(Current_Network.GetStations());
-            unordered_map<int, int> positions = Current_Network.GetPosition();
-            unordered_map<int, int>::iterator it;
-            it = positions.find(v_out);
-            v_out = it->second;
-            it = positions.find(v_in);
-            v_in = it->second;
-            MaxFlow = Current_Network.max_flow(Current_Network, v_out, v_in);
-            cout << "Максимальный поток: " << MaxFlow;
+            if (Current_Network.GetExistion()) {
+                Current_Network.ViewNetwork(Current_Network);
+                v_out = Current_Network.SelectItemFromGraph(Current_Network.GetStations());
+                v_in = Current_Network.SelectItemFromGraph(Current_Network.GetStations());
+                unordered_map<int, int> positions = Current_Network.GetPosition();
+                unordered_map<int, int>::iterator it;
+                it = positions.find(v_out);
+                v_out = it->second;
+                it = positions.find(v_in);
+                v_in = it->second;
+                MaxFlow = Current_Network.max_flow(Current_Network, v_out, v_in);
+                cout << "Максимальный поток: " << MaxFlow;
+            }
             break;
         }
         case 18://минимальный путь;
         {
             int  v_out, v_in;
             Current_Network.Create_Graph(mPipe, mStation, Current_Network);
-            v_out = SelectItemFromGraph(Current_Network.GetStations());
-            v_in = SelectItemFromGraph(Current_Network.GetStations());
-            Current_Network.BFS(Current_Network, v_out, v_in);
-
+            if (Current_Network.GetExistion()) {
+                Current_Network.ViewNetwork(Current_Network);
+                v_out = Current_Network.SelectItemFromGraph(Current_Network.GetStations());
+                v_in = Current_Network.SelectItemFromGraph(Current_Network.GetStations());
+                unordered_map<int, int> positions = Current_Network.GetPosition();
+                unordered_map<int, int>::iterator it;
+                it = positions.find(v_out);
+                v_out = it->second;
+                it = positions.find(v_in);
+                v_in = it->second;
+                Current_Network.Dextra(Current_Network, v_out, v_in);
+            }
+            break;
 
         }
         case 0: //выход

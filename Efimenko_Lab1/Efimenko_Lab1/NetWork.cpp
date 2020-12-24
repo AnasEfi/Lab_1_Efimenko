@@ -6,28 +6,41 @@ NetWork::NetWork()
 	ExistNetwork = false;
 }
 
-void NetWork::Print(unordered_set <int> s) {
-    for (auto& x : s) {
-        cout << x << " ";
+int NetWork::SelectItemFromGraph(const set<int>& m) {
+    set<int>::iterator it;
+    int id;
+    while (1) {
+        cout << "Введите номер: ";
+        cin >> id;
+        if (involved_Stations.find(id) != involved_Stations.end() && !ErrorCin(id))
+            return id;
+        else {
+            cout << "Доступные станции: ";
+            for (auto it = begin(m);it != end(m);++it) {
+                if (involved_Stations.find(*it) != involved_Stations.end())
+                    cout << *it << " ";
+            }
+        }
     }
 }
+
 bool NetWork::checkAvailablePipe(const unordered_map <int, Pipe>& mPipe) {
     bool p = false;
     for (auto& item : mPipe) {
-        if (item.second.GetIN() == -1)
+        if (item.second.GetIN() ==-1)
             p = true;
     }
     return p;
 }
-vector<vector<double>> NetWork::GetMatrix() const
+bool NetWork::GetExistion() const
 {
-    return matrix;
+    return ExistNetwork;
 }
-
-vector<vector<double>> NetWork::GetMatrix2() const
-{
-    return matrix2;
-}
+//
+//vector<vector<double>> NetWork::GetMatrix2() const
+//{
+//    return matrix2;
+//}
 
 set<int> NetWork::GetPipes() const
 {
@@ -38,24 +51,16 @@ set<int> NetWork::GetStations() const
 {
     return involved_Stations;
 }
-void NetWork::SetmatrixL(vector<vector<double>> new_matrix)
-{
-    matrix = new_matrix;
-}
-void NetWork::SetmatrixW(vector<vector<double>> new_matrix)
 
-{
-    matrix2 = new_matrix;
-}
 unordered_map<int, int> NetWork::GetPosition() const
 {
     return position_station;
 }
-void NetWork::PrintS(const unordered_map <int, int>& m) {
-    for (auto& i : m) {
-        cout << i.first << i.second << endl;
-    }
-}
+//void NetWork::PrintS(const unordered_map <int, int>& m) {
+//    for (auto& i : m) {
+//        cout << i.first << i.second << endl;
+//    }
+//}
 
 bool NetWork::cycle(int start, vector <vector <double>>& g, vector <int>& visit)
 {
@@ -76,7 +81,6 @@ void NetWork::ConnectPipes(unordered_map <int, Pipe>& mPipe, unordered_map <int,
     int InID = -1;
     int OutID = -1;
     int PipeID = -1;
-
     auto result = FindbyFilter(mPipe, Checkbystatus, false);
     int inwork = result.size();
     if (checkAvailablePipe(mPipe) == false || mStation.size() <= 1 || mPipe.size() == 0 || inwork == 0) {
@@ -113,7 +117,6 @@ void NetWork::ConnectPipes(unordered_map <int, Pipe>& mPipe, unordered_map <int,
         mPipe[PipeID].SetUsed(true);
         mPipe.find(PipeID)->second.SetIN(InID);
         mPipe.find(PipeID)->second.SetOUT(OutID);
-        
         return;
     }
 }
@@ -146,6 +149,11 @@ void NetWork::Create_Graph(unordered_map<int, Pipe>& mPipe, unordered_map<int, c
         ++d;
     }
     int x = involved_Stations.size();
+    if (x == 0) {
+        cout << "Невозможно построить граф" << endl;
+        ExistNetwork = false;
+        return;
+    }
     int amount_of_picks = x;
     int val = 0;
     for (int i = 0; i < x; i++)
@@ -168,31 +176,16 @@ void NetWork::Create_Graph(unordered_map<int, Pipe>& mPipe, unordered_map<int, c
                     matrix[indexi][indexj] = 0;
                 }
                 else {
-                    matrix[indexi][indexj] = item.second.GetLength();
-                    matrix2[indexi][indexj] = item.second.GetLength();
+                    matrix[indexi][indexj] = item.second.GetWeight();
+                    matrix2[indexi][indexj] = item.second.GetWeight();
                 }
                 break;
             }
         }
     }
-   /* if (sort.size() == 0) {
-        cout << "Нет связей для графа" << endl;
-        return;
-    }*/
-    Current_Network.SetmatrixL(matrix);
-    Current_Network.SetmatrixW(matrix2);
-    ViewNetwork(matrix, involved_Stations);
-    unordered_set<int>sort = Topological_Sort(Current_Network);
-    
-    cout << "Топологическая сортировка" << endl;
-    for (auto it = begin(sort);it != end(sort);++it) {
-        if (position_station_invert.find(*it) != position_station_invert.end()) {
-            if  (it== begin(sort)) cout << position_station_invert.find(*it)->second; else
-                cout << "->" << position_station_invert.find(*it)->second;
-        }
-    }
+    ExistNetwork = true;
 }
-unordered_set<int> NetWork::Topological_Sort(NetWork& Current_Network) {
+void NetWork::Topological_Sort(NetWork& Current_Network) {
     vector<vector<double>> matrix_for_sort;
     int N = Current_Network.GetStations().size();
     double sum = 0;
@@ -200,11 +193,11 @@ unordered_set<int> NetWork::Topological_Sort(NetWork& Current_Network) {
     vector <int> visit(N, 0);
     for (int i = 0; i < N; i++)
         matrix_for_sort.push_back(vector<double>());
-    matrix_for_sort = Current_Network.GetMatrix();
+    matrix_for_sort = matrix;
     for (int i = 0; i < N; i++) {
         if (cycle(i, matrix_for_sort, visit)) {
             cout << "В графе есть цикл" << endl;
-            return sort;
+            return ;
         }
     }
     do {
@@ -223,118 +216,95 @@ unordered_set<int> NetWork::Topological_Sort(NetWork& Current_Network) {
             }
         }
     } while (sort.size() != Current_Network.GetStations().size());
-    return sort;
+
+    cout << "Топологическая сортировка" << endl;
+    for (auto it = begin(sort);it != end(sort);++it) {
+        if (position_station_invert.find(*it) != position_station_invert.end()) {
+            if (it == begin(sort)) cout << position_station_invert.find(*it)->second; else
+                cout << "->" << position_station_invert.find(*it)->second;
+        }
+    }
 }
 
-
-
-//////////////////////////////////////////////////////////////////////////////// max flow
-
-void NetWork::BFS(const NetWork& Current_Network,int start, int end) {
+void NetWork::Dextra(const NetWork& Current_Network, int start, int endv) {
     vector<vector<double>> matrix_for_length = Current_Network.matrix;
-    int s=start;              		// Номер исходной вершины
-    int g=end;              		// Номер конечной вершины
-    int N = Current_Network.involved_Stations.size();
-
+    int s = start;              		// Номер исходной вершины
+    int e = endv;              		// Номер конечной вершины
+    int N = Current_Network.involved_Stations.size(), minindex, min;
+    int save;//переменная для временного хранения величин
     int infinity = 10000;
     int v;
-    vector <int> x (N); //Массив, содержащий единицы и нули для каждой вершины,
-                   // x[i]=0 - еще не найден кратчайший путь в i-ю вершину,
-                   // x[i]=1 - кратчайший путь в i-ю вершину уже найден
-    vector <int>t(N);  //t[i] - длина кратчайшего пути от вершины s в i
-    vector <double>h(N);  //h[i] - вершина, предшествующая i-й вершине
-                  // на кратчайшем пути
-
-    // Инициализируем начальные значения массивов
-    int u;		    // Счетчик вершин
-    for (u = 0;u < N;u++)
-    {
-        t[u] = infinity; //Все пути бесконечности 
-        x[u] = 0;        // и нет кратчайшего пути ни для одной вершины
+    vector <double> d;
+    vector <int>a;
+    vector <double>h;
+    if (start == endv) {
+        cout << "Путь:0";
+        return;
     }
-    h[s] = 0; // s - начало пути, поэтому этой вершине ничего не предшествует
-    t[s] = 0; // Кратчайший путь из s в s равен 0
-    x[s] = 1; // Для вершины s найден кратчайший путь
-    v = s;    // Делаем s текущей вершиной
-
-    while (1)
-    {
-        // Перебираем все вершины, смежные v, и ищем для них кратчайший путь
-        for (u = 0;u < N;u++)
+ 
+    for (int i = 0; i < N; i++) {
+        d.push_back(10000);
+        a.push_back(1);//отмечает все вершины как необработанные
+    }
+    d[s] = 0;
+    do {
+        minindex = 10000;//индекс вершины с минимальным весом
+        min = 10000;// мин вес
+        for (int i = 0; i < N; i++)
         {
-            if (matrix_for_length[v][u] == 0)continue; // Вершины u и v несмежные
-            if (x[u] == 0 && t[u] > t[v] + matrix_for_length[v][u]) //Если кр.путь еще не найден
+            if ((a[i] == 1) && (d[i] < min))
             {
-                t[u] = t[v] + matrix_for_length[v][u];	//новый путь короче
-                h[u] = v;
+                min = d[i];
+                minindex = i;
             }
         }
-        // Ищем из всех длин некратчайших путей самый короткий
-        int w = infinity; 
-        v = -1;           
-        for (u = 0;u < N;u++) // Перебираем все вершины.
+        if (minindex != 10000)
         {
-            if (x[u] == 0 && t[u] < w) // Если для вершины не найден кратчайший 
-                                  // путь и если длина пути в вершину u меньше
-                                  // уже найденной, то
+            for (int i = 0; i < N; i++)
             {
-                v = u; // текущей вершиной становится u-я вершина
-                w = t[u];
+                if (matrix[minindex][i] > 0)
+                {
+                    save = min + matrix[minindex][i];
+                    if (save < d[i])
+                    {
+                        d[i] = save;
+                    }
+                }
             }
+            a[minindex] = 0;
         }
-        if (v == -1)
-        {
-            cout << "Нет пути из вершины " << s << " в вершину " << g  << endl;
-            break;
-        }
-        if (v == g) // Найден кратчайший путь,
-        {        // выводим его
-            cout << "Кратчайший путь из вершины " << s << " в вершину " << g << ":";
-            u = g;
-            while (u != s)
+    } while (minindex < 10000);
+    vector<int> ver(N); // массив посещенных вершин
+    ver[0] = e; // начальный элемент - последняя вершина
+    int k = 0; // индекс предыдущей вершины
+    double weight = d[e];
+    if (weight == 10000) { cout << "Нет пути" << endl; return; }
+    cout << "Длина пути: " << weight << endl;// вес последней вершины
+    while (e != s) {
+        for (int i = 0; i < N; i++)
+            if (matrix[i][e] != 0)
             {
-                cout << " " << u;
-                u = h[u];
+                int temp = weight - matrix[i][e]; // вес пути из предыдущей вершины
+                if (temp == d[i])
+                {
+                    weight = temp;
+                    e = i; // сохраняем предыдущую вершину
+                    ver[k] = i; // записываем ее в массив
+                    k++;
+                }
             }
-            cout << " " << s << ". Длина пути - " << t[g];
-            break;
+    }
+    ver.resize(k-1);
+    ver.insert(ver.begin(), start);
+    ver.insert(ver.end(), endv);
+    for (auto it = begin(ver);it != end(ver);++it) {
+        if (position_station_invert.find(*it) != position_station_invert.end()) {
+            if (it == begin(ver)) cout << position_station_invert.find(*it)->second; else
+                cout << "->" << position_station_invert.find(*it)->second;
         }
-        x[v] = 1;
     }
 }
-    //queue<int> Q;
-    ////distance[i] - расстояние от i-ой вершины до стартовой
-    //vector<int> distance(matrix_for_length.size(), -1);
-    ////prevTop[i] - предок i-ой вершины в кратчайшем пути
-    //vector<int> prevTop(matrix_for_length.size(), -1);
 
-    //distance[start] = 0;
-    //Q.push(start);
-    //while (Q.size()) {
-    //    int u = Q.front();
-    //    Q.pop();
-    //    for (int j = 0; j < matrix_for_length[u].size(); j++) {
-    //        int v = matrix_for_length[u][j];
-    //        if (distance[v] == -1) {
-    //            distance[v] = distance[u] + 1;
-    //            prevTop[v] = u;
-    //            Q.push(v);
-    //        }
-    //    }
-    //}
-
-    ////print results
-    //for (int i = 0; i < prevTop.size(); i++) {
-    //    cout << i << '(' << distance[i] << ")\t:";
-    //    int x = prevTop[i];
-    //    while (x != -1) {
-    //        cout << x << ' ';
-    //        x = prevTop[x];
-    //    }
-    //    cout << endl;
-    //}
-
-    //return;
 
 int bfs(int s, int t,int N, double MAX_VAL, vector<vector<double>>&F, vector<vector<double>>&C,vector<double>& push, vector<int>&pred)
 {
@@ -366,8 +336,6 @@ int bfs(int s, int t,int N, double MAX_VAL, vector<vector<double>>&F, vector<vec
     }
     return visited[t];
 }
-
-
 double NetWork::max_flow(const NetWork& current_Network, int s, int t)
 {
     int max_flow;
@@ -376,7 +344,7 @@ double NetWork::max_flow(const NetWork& current_Network, int s, int t)
     int St,P;
     St=current_Network.involved_Stations.size();//кол-во вершин
    // P = sizeof(current_Network.GetPipes());//кол-во ребер
-    auto C = current_Network.GetMatrix();    // Матрица "пропускных способностей"
+    auto C = matrix;    // Матрица "пропускных способностей"
     size_t N = current_Network.GetStations().size();
     vector<vector<double>> F;
     F.resize(N);
@@ -430,7 +398,7 @@ double NetWork::max_flow(const NetWork& current_Network, int s, int t)
     return max_flow = flow;
 }
 
-void NetWork::ViewNetwork(const vector<vector<double>>& graph, const set<int>& involved_Stations)
+void NetWork::ViewNetwork(const NetWork& CurrentNetwork)
 {
     set<int>::iterator it;
     it = involved_Stations.begin();
@@ -446,7 +414,7 @@ void NetWork::ViewNetwork(const vector<vector<double>>& graph, const set<int>& i
         cout << setw(7) << *it;
         it++;
         for (unsigned int j = 0; j < involved_Stations.size(); j++)
-            cout << setw(7) << graph[i][j];
+            cout << setw(7) << matrix[i][j];
         cout << endl;
     }
 }
