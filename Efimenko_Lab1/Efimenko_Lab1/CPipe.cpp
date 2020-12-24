@@ -16,6 +16,8 @@ Pipe::Pipe() {
     in = -1;
     out = -1;
     used = false;
+    weight = INFINITY;
+    productivity = 0;
 }
 
 string Pipe::GetName() const
@@ -31,7 +33,6 @@ double Pipe::GetLength() const
 {
     return length;
 }
-
 
 double Pipe::GetDiametr() const
 {
@@ -50,7 +51,7 @@ bool Pipe::GetStatus() const
 
 double Pipe::GetWeight() const
 {
-    return length*2;
+    return weight*length;
 }
 
 int Pipe::GetIN() const
@@ -68,14 +69,16 @@ int Pipe::Getout() const
     return out;
 }
 
-int Pipe::GetUsed() const
+bool Pipe::GetUsed() const
 {
     return used;
 }
 
-void Pipe::SetUsed(bool new_status)
+void Pipe::SetUsed(bool status)
 {
-    used = true;
+    if ((out != -1) || in != -1)
+        used = status;
+    else used = !status;
 }
 
 void Pipe::SetOUT(int new_out)
@@ -83,18 +86,50 @@ void Pipe::SetOUT(int new_out)
     out = new_out;
 }
 
-void Pipe::PipeEdit()
+int Pipe::GetProductivity() const
 {
-    status = !status;
+    return productivity;
 }
 
-std::ofstream& operator<<(ofstream& fout, const Pipe& Pipe)
+void Pipe::SetProductivity(int new_productivity)
+{
+    productivity = new_productivity;
+}
+void Pipe::PipeEdit()
+{
+    status =!status;
+    if (status==true) {
+        productivity = 0;
+        weight = INFINITY;
+    }
+    if (status == false) {
+        double Temperature = 300;
+        double c = 0.0384;//относительная плотность по воздуху
+        if (GetStatus() == false) {
+            double producrivity = c * sqrt(pow(GetDiametr(), 5) / (Temperature * GetLength()));
+            SetProductivity(producrivity);
+        }
+    }
+}
+void FuncForProductivity(Pipe& new_Pipe)
+{
+    if (new_Pipe.status == 0) {
+        double Temperature = 300;
+        double c = 0.0384;//относительная плотность по воздуху
+        if (new_Pipe.GetStatus() == false) {
+            double producrivity = c * sqrt(pow(new_Pipe.GetDiametr(), 5) / (Temperature * new_Pipe.GetLength()));
+            new_Pipe.SetProductivity(producrivity);
+        }
+    }
+}
+
+ofstream& operator<<(ofstream& fout, const Pipe& Pipe)
 {
     fout << Pipe.id << '\n' << Pipe.Name << '\n' << Pipe.diametr << '\n' << Pipe.length << '\n' << Pipe.status << '\n' << Pipe.in << '\n' << Pipe.out << '\n';
     return fout;
 }
 
-std::istream& operator>>(ifstream& fin, Pipe& Pipe)
+istream& operator>>(ifstream& fin, Pipe& Pipe)
 {
     fin >> Pipe.id;
     fin.ignore();
@@ -171,10 +206,15 @@ istream& operator >> (istream& in, Pipe& Pipe) // оператор ввода
         else break;
 
     }
-    if (Pipe.status != 0)
+    if (Pipe.status != 0) {
         cout << "Труба находится в ремонте" << endl;
-    else
+        Pipe.productivity = 0;
+    }
+    else {
         cout << "Труба готова к использованию" << endl;
+        Pipe.weight = 1;
+        Pipe.productivity=1;
+    }
     cout << "Данные о трубе успешно сохранены" << endl;
     return in;
 }

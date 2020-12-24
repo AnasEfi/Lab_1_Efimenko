@@ -15,26 +15,26 @@
 class NetWork
 {
 private:
-	vector<vector<double>> matrix;
-	vector<vector<double>> matrix2;
+	bool ExistNetwork;
+	vector<vector<double>> matrix;//path
+	vector<vector<double>> matrix2;//productivity
 	vector<int> used;
 	vector<int> ans;
 	set<int> involved_Pipes;
 	set<int> involved_Stations;
-	unordered_map <int, int> position_station;
-	unordered_map <int, int> position_station_invert;
-	unordered_map<int, int> connection_between_Stations;
-	bool ExistNetwork;
+	unordered_map <int, int> position_station;//for matrix
+	unordered_map <int, int> position_station_invert;//for matrix
+	unordered_map<int, int> connection_between_Stations;//for matrix
 public:
-	
 	NetWork();
+
 	void Topological_Sort(NetWork& Current_Network);
 	void Dextra(const NetWork& Current_Network, int start,int end);
 	void ConnectPipes(unordered_map<int, Pipe>& mPipe, unordered_map<int, compressorStation>& mStation);
 	bool cycle(int start, vector <vector <double>>& g, vector <int>& visit);
 	double max_flow(const NetWork& current_Network, int s, int t);
-	void ViewNetwork(const NetWork& CurrentNetwork);
-	void Create_Graph(unordered_map<int, Pipe>& mPipe, unordered_map<int, compressorStation>& mStation, NetWork& Current_Network);
+	void ViewNetwork(int p);
+	void Create_Graph(unordered_map<int, Pipe>& mPipe, unordered_map<int, compressorStation>& mStation);
 	int SelectItemFromGraph(const set<int>& m);
 	bool checkAvailablePipe(const unordered_map<int, Pipe>& mPipe);
 

@@ -48,8 +48,6 @@ Type& SelectItem(unordered_map <int, Type>& m) {
     if (m.find(index) != m.end())
         return m.find(index)->second;
 }
-
-
 bool  Checkbypercent(const compressorStation& Station1, double parameter) {
     double percent;
     percent = floor((Station1.GetInWork())/(Station1.GetAmount()) * 100);
@@ -58,7 +56,6 @@ bool  Checkbypercent(const compressorStation& Station1, double parameter) {
 bool  Checkbystatus(const Pipe& current_Pipe, bool parameter) {
     return current_Pipe.GetStatus() == parameter;
 }
-
 template<typename Type, typename T>
 bool InRepair(unordered_map <int, Type>& m, T id) {
     if (m[id].GetStatus() == 0)
@@ -77,7 +74,6 @@ vector <int> FindbyFilter(const unordered_map <int, Type>& group, Filter <Type, 
     }
     return res;
 }
-
 
 int main() {
     setlocale(LC_ALL, "rus");
@@ -100,6 +96,7 @@ int main() {
         {
             if (mPipe.size() != 0) {
                 (SelectItem(mPipe)).PipeEdit();
+                 
                 cout << "Вы успешно поменяли статус трубы" << endl;
             }
             else cout << "нет труб";
@@ -134,7 +131,6 @@ int main() {
                 cout << item.second << endl;
             break;
         }
-
         case 7: // записать в файл
         {
             ofstream fout;
@@ -184,6 +180,8 @@ int main() {
                     while (count--) {
                         Pipe new_Pipe;
                         fin >> new_Pipe;
+                        FuncForProductivity(new_Pipe);
+                        new_Pipe.SetUsed(1);
                         mPipe.emplace(new_Pipe.GetID(),new_Pipe);
                     }
                     fin.ignore();
@@ -272,26 +270,31 @@ int main() {
         {
             Current_Network.ConnectPipes(mPipe,mStation);
                 break;
-         
         }
         case 16: //Получим граф
         {
-            Current_Network.Create_Graph(mPipe, mStation, Current_Network);
+            int p = 1;
+            Current_Network.Create_Graph(mPipe, mStation);
             if (Current_Network.GetExistion()) {
-                Current_Network.ViewNetwork(Current_Network);
+                Current_Network.ViewNetwork(p);
                 Current_Network.Topological_Sort(Current_Network);
             }
             break;
         }
         case 17: //Максимальный поток  
         {
-            int  v_out, v_in;
+            int  v_out, v_in, p;
+            p = 2;
             double MaxFlow;
-            Current_Network.Create_Graph(mPipe, mStation, Current_Network);
+            Current_Network.Create_Graph(mPipe, mStation);
             if (Current_Network.GetExistion()) {
-                Current_Network.ViewNetwork(Current_Network);
+                Current_Network.ViewNetwork(p);
                 v_out = Current_Network.SelectItemFromGraph(Current_Network.GetStations());
                 v_in = Current_Network.SelectItemFromGraph(Current_Network.GetStations());
+                if (v_out == v_in) {
+                    cout << "Максимальный поток: 0";
+                    break;
+                }
                 unordered_map<int, int> positions = Current_Network.GetPosition();
                 unordered_map<int, int>::iterator it;
                 it = positions.find(v_out);
@@ -305,12 +308,14 @@ int main() {
         }
         case 18://минимальный путь;
         {
-            int  v_out, v_in;
-            Current_Network.Create_Graph(mPipe, mStation, Current_Network);
+            int  v_out, v_in, p;
+            p = 1;
+            Current_Network.Create_Graph(mPipe, mStation);
             if (Current_Network.GetExistion()) {
-                Current_Network.ViewNetwork(Current_Network);
+                Current_Network.ViewNetwork(p);
                 v_out = Current_Network.SelectItemFromGraph(Current_Network.GetStations());
                 v_in = Current_Network.SelectItemFromGraph(Current_Network.GetStations());
+                
                 unordered_map<int, int> positions = Current_Network.GetPosition();
                 unordered_map<int, int>::iterator it;
                 it = positions.find(v_out);
@@ -320,13 +325,11 @@ int main() {
                 Current_Network.Dextra(Current_Network, v_out, v_in);
             }
             break;
-
         }
         case 0: //выход
         {
             return 0;
             break;
-          
         }
         default:
         {

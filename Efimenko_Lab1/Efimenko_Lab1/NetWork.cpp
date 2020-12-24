@@ -36,12 +36,6 @@ bool NetWork::GetExistion() const
 {
     return ExistNetwork;
 }
-//
-//vector<vector<double>> NetWork::GetMatrix2() const
-//{
-//    return matrix2;
-//}
-
 set<int> NetWork::GetPipes() const
 {
     return involved_Pipes;
@@ -56,11 +50,6 @@ unordered_map<int, int> NetWork::GetPosition() const
 {
     return position_station;
 }
-//void NetWork::PrintS(const unordered_map <int, int>& m) {
-//    for (auto& i : m) {
-//        cout << i.first << i.second << endl;
-//    }
-//}
 
 bool NetWork::cycle(int start, vector <vector <double>>& g, vector <int>& visit)
 {
@@ -97,7 +86,13 @@ void NetWork::ConnectPipes(unordered_map <int, Pipe>& mPipe, unordered_map <int,
                 cout << "Цех начала трубы,введите другой: ";
             else break;
         }
+        cout << "Доступные трубы: ";
+        for (auto& it : mPipe) {
+            if (it.second.GetUsed() == 0 && it.second.GetStatus() == 0)
+                cout << it.second.GetID() << " "<<endl;
+        }
         cout << "трубой [ID]: ";
+
         do {
             PipeID = SelectItem(mPipe).GetID();
             if ((mPipe[PipeID].GetUsed() == true)) 
@@ -120,12 +115,14 @@ void NetWork::ConnectPipes(unordered_map <int, Pipe>& mPipe, unordered_map <int,
         return;
     }
 }
-void NetWork::Create_Graph(unordered_map<int, Pipe>& mPipe, unordered_map<int, compressorStation>& mStation, NetWork& Current_Network)
+void NetWork::Create_Graph(unordered_map<int, Pipe>& mPipe, unordered_map<int, compressorStation>& mStation)
 {
     involved_Pipes.clear();
     involved_Stations.clear();
     position_station.clear();
     position_station_invert.clear();
+    matrix.clear();
+    matrix2.clear();
 
     for (auto& item : mPipe) {
         if ((item.second.GetIN() != -1) && (item.second.Getout() != -1)) {
@@ -148,19 +145,18 @@ void NetWork::Create_Graph(unordered_map<int, Pipe>& mPipe, unordered_map<int, c
         position_station_invert.emplace(d, i);
         ++d;
     }
-    int x = involved_Stations.size();
-    if (x == 0) {
+    int vertex = involved_Stations.size();
+    if (vertex == 0) {
         cout << "Невозможно построить граф" << endl;
         ExistNetwork = false;
         return;
     }
-    int amount_of_picks = x;
     int val = 0;
-    for (int i = 0; i < x; i++)
+    for (int i = 0; i < vertex; i++)
     {
         matrix.push_back(vector<double>());
         matrix2.push_back(vector<double>());
-        for (int j = 0; j < x; j++)
+        for (int j = 0; j < vertex; j++)
         {
             matrix.back().push_back(val);
             matrix2.back().push_back(val);
@@ -176,8 +172,8 @@ void NetWork::Create_Graph(unordered_map<int, Pipe>& mPipe, unordered_map<int, c
                     matrix[indexi][indexj] = 0;
                 }
                 else {
-                    matrix[indexi][indexj] = item.second.GetWeight();
-                    matrix2[indexi][indexj] = item.second.GetWeight();
+                    matrix[indexi][indexj] = item.second.GetLength();
+                    matrix2[indexi][indexj] = item.second.GetProductivity();
                 }
                 break;
             }
@@ -230,18 +226,14 @@ void NetWork::Dextra(const NetWork& Current_Network, int start, int endv) {
     vector<vector<double>> matrix_for_length = Current_Network.matrix;
     int s = start;              		// Номер исходной вершины
     int e = endv;              		// Номер конечной вершины
-    int N = Current_Network.involved_Stations.size(), minindex, min;
-    int save;//переменная для временного хранения величин
-    int infinity = 10000;
-    int v;
-    vector <double> d;
+    int N = Current_Network.involved_Stations.size(), minindex,v;
+    double min,save;
+    vector <double> d,h;
     vector <int>a;
-    vector <double>h;
     if (start == endv) {
         cout << "Путь:0";
         return;
     }
- 
     for (int i = 0; i < N; i++) {
         d.push_back(10000);
         a.push_back(1);//отмечает все вершины как необработанные
@@ -284,7 +276,7 @@ void NetWork::Dextra(const NetWork& Current_Network, int start, int endv) {
         for (int i = 0; i < N; i++)
             if (matrix[i][e] != 0)
             {
-                int temp = weight - matrix[i][e]; // вес пути из предыдущей вершины
+                double temp = weight - matrix[i][e]; // вес пути из предыдущей вершины
                 if (temp == d[i])
                 {
                     weight = temp;
@@ -309,7 +301,7 @@ void NetWork::Dextra(const NetWork& Current_Network, int start, int endv) {
 int bfs(int s, int t,int N, double MAX_VAL, vector<vector<double>>&F, vector<vector<double>>&C,vector<double>& push, vector<int>&pred)
 {
     vector<int>visited(N);        // Отметки на вершинах, в которых побывали
-    vector<int> dist(N);        // Расстояние до вершины [v] из начальной точки
+    vector<double> dist(N);        // Расстояние до вершины [v] из начальной точки
     for (int i = 0; i < N; i++)
     {
         visited[i] = 0;
@@ -338,14 +330,14 @@ int bfs(int s, int t,int N, double MAX_VAL, vector<vector<double>>&F, vector<vec
 }
 double NetWork::max_flow(const NetWork& current_Network, int s, int t)
 {
-    int max_flow;
-    int u, v, flow = 0;
-    double MAX_Flow=500;
-    int St,P;
+    double max_flow;
+    double flow=0;
+    int u, v = 0;
+    double MAX_Flow=INFINITY;
+    int St;
     St=current_Network.involved_Stations.size();//кол-во вершин
-   // P = sizeof(current_Network.GetPipes());//кол-во ребер
-    auto C = matrix;    // Матрица "пропускных способностей"
-    size_t N = current_Network.GetStations().size();
+    auto C = matrix2;    // Матрица "пропускных способностей"
+    int N = current_Network.GetStations().size();
     vector<vector<double>> F;
     F.resize(N);
     double val = 0;
@@ -355,22 +347,14 @@ double NetWork::max_flow(const NetWork& current_Network, int s, int t)
         for (int j = 0; j < N; ++j)
             F[i][j] = val;
     }
-
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) cout << F[i][j] << " ";
-        cout << "\n";
-    }
-        
-    // Матрица "текущего потока в графе"
-    //auto P = current_Network.GetMatrix2();    // Матрица "стоимости (расстояний)"
-    vector<double> push(N); //поток из конечно в начальную вершину
+    vector<double> push(N); //поток из конечной в начальную вершину
     vector<int>pred(N);        // Откуда пришли в вершину [v] (предок)
     vector<int>path;
     path.emplace_back(s);
     bool k = false;
     while (bfs(s, t, St, MAX_Flow,F,C,push,pred))
     {
-        int add = push[t];
+        double add = push[t];
         v = t; u = pred[v];
         while (v != s)
         {
@@ -398,23 +382,36 @@ double NetWork::max_flow(const NetWork& current_Network, int s, int t)
     return max_flow = flow;
 }
 
-void NetWork::ViewNetwork(const NetWork& CurrentNetwork)
+void NetWork::ViewNetwork(int p)
 {
     set<int>::iterator it;
     it = involved_Stations.begin();
+    int N = involved_Stations.size();
     cout << setw(7) << "*";
-    for (int i = 0; i < involved_Stations.size(); i++) {
+    for (int i = 0; i < N ; i++) {
         cout << setw(7) << *it;
         it++;
     }
     cout << endl;
     it = involved_Stations.begin();
-    for (unsigned int i = 0; i < involved_Stations.size(); i++)
-    {
-        cout << setw(7) << *it;
-        it++;
-        for (unsigned int j = 0; j < involved_Stations.size(); j++)
-            cout << setw(7) << matrix[i][j];
-        cout << endl;
+    if (p == 1) {
+        for (unsigned int i = 0; i < involved_Stations.size(); i++)
+        {
+            cout << setw(7) << *it;
+            it++;
+            for (unsigned int j = 0; j < involved_Stations.size(); j++)
+                cout << setw(7) << matrix[i][j];
+            cout << endl;
+        }
+    }
+    if (p == 2) {
+        for (unsigned int i = 0; i < involved_Stations.size(); i++)
+        {
+            cout << setw(7) << *it;
+            it++;
+            for (unsigned int j = 0; j < involved_Stations.size(); j++)
+                cout << setw(7) << matrix2[i][j];
+            cout << endl;
+        }
     }
 }
